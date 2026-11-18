@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WatchHawks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<div id="spiel">
+  <div id="buehne">
+    <canvas id="szene"></canvas>
+
+    <div class="hud" id="oben">
+      <div class="links">
+        <div class="kasten waehrungen">
+          <div class="waehrung geld"><i data-icon="euro"></i><span id="geld">0</span></div>
+          <div class="waehrung sterne" data-t-title="hud.sterne"><i data-icon="stern"></i><span id="sterneTxt">0</span></div>
+          <div class="waehrung gems" data-t-title="hud.gems"><i data-icon="gem"></i><span id="gemsTxt">0</span></div>
+        </div>
+        <div class="kasten umzug" id="umzugBox" data-t-title="umzug.title">
+          <div class="umzugKopf"><i data-icon="stern"></i><span id="umzugTxt"></span></div>
+          <div class="ebalken"><div id="umzugFill"></div></div>
+          <div class="klein" id="umzugNaechster"></div>
+        </div>
+        <div class="kasten boost" id="boostBox" hidden><i data-icon="vip"></i><span id="boostTxt"></span></div>
+      </div>
+      <div class="ecke">
+        <button class="kleinknopf vipknopf" id="vipBtn" hidden data-t-aria="btn.vip"><i data-icon="vip"></i><span data-t="btn.vip"></span></button>
+        <button class="kleinknopf" id="erfolgeBtn" hidden data-t-aria="aria.erfolge"><i data-icon="erfolg"></i><span id="erfolgeZahl">0/0</span><span id="erfolgeBadge" class="badge">0</span></button>
+        <button class="kleinknopf zahnrad" id="einstBtn" data-t-aria="aria.einstellungen"><i data-icon="zahnrad"></i></button>
+      </div>
+    </div>
+
+    <div class="hud" id="unten">
+      <button class="aktion bau" id="bauBtn"><span class="taste">1</span><i data-icon="bau"></i><span class="label" data-t="btn.bauen"></span></button>
+      <button class="aktion polier" id="polBtn" hidden><span class="taste">2</span><i data-icon="polier"></i><span class="label" data-t="btn.polieren"></span></button>
+      <button class="aktion pack" id="packBtn" hidden><span class="taste">3</span><i data-icon="pack"></i><span class="label" id="packLabel"></span></button>
+      <button class="aktion verkauf" id="verBtn" hidden><span class="taste">4</span><i data-icon="verkauf"></i><span class="label" id="verLabel"></span></button>
+      <button class="zweit" id="menueBtn" hidden><i data-icon="upgrades"></i><span data-t="btn.upgrades"></span><span class="tabStern" id="menueStern" hidden><i data-icon="stern"></i></span></button>
+    </div>
+  </div>
+
+  <div id="menue">
+    <div id="reiter">
+      <button data-tab="ausruestung" class="aktiv"><i data-icon="bau"></i><span data-t="tab.ausruestung"></span></button>
+      <button data-tab="uhren" hidden><i data-icon="uhren"></i><span data-t="tab.uhren"></span><span class="tabStern" hidden><i data-icon="stern"></i></span></button>
+      <button data-tab="manager" hidden><i data-icon="manager"></i><span data-t="tab.manager"></span><span class="tabStern" hidden><i data-icon="stern"></i></span></button>
+      <button data-tab="laden" hidden><i data-icon="laden"></i><span data-t="tab.laden"></span><span class="tabStern" hidden><i data-icon="stern"></i></span></button>
+      <button data-tab="ruf" hidden><i data-icon="stern"></i><span data-t="tab.ruf"></span><span class="tabStern" hidden><i data-icon="stern"></i></span></button>
+      <button class="zweit schliessen" id="zuBtn" data-t-aria="aria.schliessen"><i data-icon="zu"></i></button>
+    </div>
+    <div id="inhalt"></div>
+  </div>
+</div>
+<div id="meldung"></div>
+
+<div id="erfolgeFenster" class="overlay">
+  <div class="fenster">
+    <div class="fensterKopf">
+      <i data-icon="erfolg"></i>
+      <div><b data-t="erfolge.titel"></b><div class="klein" id="erfolgeBonus"></div></div>
+      <button class="kleinknopf boniKnopf" id="boniBtn"><i data-icon="statistik"></i><span id="boniLabel" data-t="erfolge.boni"></span></button>
+      <button class="zweit kleinknopf" id="erfolgeZu" data-t-aria="aria.schliessen"><i data-icon="zu"></i></button>
+    </div>
+    <div id="erfolgeListe"></div>
+    <div id="boniListe" hidden></div>
+  </div>
+</div>
+
+<div id="einstFenster" class="overlay">
+  <div class="fenster">
+    <div class="fensterKopf">
+      <i data-icon="zahnrad"></i>
+      <div><b data-t="einst.titel"></b><div class="klein" data-t="einst.unter"></div></div>
+      <button class="zweit kleinknopf" id="einstZu" data-t-aria="aria.schliessen"><i data-icon="zu"></i></button>
+    </div>
+    <div class="einstReiter">
+      <button data-etab="profil" class="aktiv"><i id="profilIcon"></i><span data-t="einst.profil"></span></button>
+      <button data-etab="statistik"><i data-icon="statistik"></i><span data-t="einst.statistik"></span></button>
+      <button data-etab="allgemein"><i data-icon="welt"></i><span data-t="einst.allgemein"></span></button>
+    </div>
+
+    <div class="epanel" id="epanel-profil">
+      <div class="profilInhalt">
+        <div class="vorschau"><div id="profilVorschau"></div><div class="klein" data-t="profil.vorschau"></div></div>
+        <div class="profilFelder">
+          <label class="feld"><span data-t="profil.name"></span>
+            <input id="ladenNameInput" maxlength="20" data-t-ph="profil.platzhalter" autocomplete="off">
+          </label>
+          <div class="feld"><span data-t="profil.frisur"></span><div class="auswahl" id="wahlFrisur"></div></div>
+          <div class="feld"><span data-t="profil.haar"></span><div class="auswahl" id="wahlHaar"></div></div>
+          <div class="feld"><span data-t="profil.haut"></span><div class="auswahl" id="wahlHaut"></div></div>
+          <div class="feld"><span data-t="profil.shirt"></span><div class="auswahl" id="wahlShirt"></div></div>
+          <div class="feld"><span data-t="profil.extra"></span><div class="auswahl" id="wahlExtra"></div></div>
+          <p class="klein hinweis" data-t="profil.hinweis"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="epanel" id="epanel-statistik" hidden><div id="statistikListe"></div></div>
+
+    <div class="epanel" id="epanel-allgemein" hidden>
+      <div class="allgemein">
+        <div class="feld"><span data-t="allg.sprache"></span>
+          <div class="auswahl">
+            <button class="sprachKnopf" data-sprache="de">Deutsch</button>
+            <button class="sprachKnopf" data-sprache="en">English</button>
+          </div>
+        </div>
+        <div class="feld"><span data-t="allg.anzeige"></span>
+          <div class="auswahl">
+            <button class="zweit" id="vollbildBtn"><i data-icon="vollbild"></i><span id="vollbildLabel" data-t="btn.vollbild"></span></button>
+          </div>
+        </div>
+        <div class="karte">
+          <div><b data-t="allg.reset"></b><div class="klein" data-t="allg.resetInfo"></div></div>
+          <button class="gefahr" id="resetBtn"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="fehler"></div>
+
+<!-- Reihenfolge ist wichtig: erst Daten, dann Logik, zum Schluss der Start -->
+<script src="js/fehler.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/sprache.js"></script>
+<script src="js/daten.js"></script>
+<script src="js/spielstand.js"></script>
+<script src="js/logik.js"></script>
+<script src="js/grafik.js"></script>
+<script src="js/menue.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

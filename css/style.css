@@ -1,0 +1,351 @@
+/* ================================================================
+   AUSSEHEN – passend zur Cartoon-Pixelgrafik:
+   dicke dunkle Umrandung, runde Ecken, "Klotz"-Schatten nach unten,
+   helle Cremefarben für Knöpfe und Karten.
+   ================================================================ */
+:root {
+  --umriss: #1d1219;
+  --bg: #1b1420;
+  --panel: #3a2632;
+  --panel-hell: #6b4558;
+  --creme: #fff1d6;
+  --creme-dunkel: #e9d3b0;
+  --text-dunkel: #2b1d26;
+  --text-hell: #f3e6c8;
+  --grau: #8a7a80;
+  /* Farben der drei Arbeitsschritte */
+  --bau: #f3b36b;
+  --polier: #a9e0cf;
+  --pack: #7fb2f0;   /* kräftiges Blau, damit man "ausgegraut" gut erkennt */
+  --verkauf: #f6cf5c;
+  --manager: #b9a8e8;
+  --beere: #d98a9c;
+  --rot: #e0606a;
+}
+* { box-sizing: border-box; min-width: 0; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); }
+body { color: var(--text-hell); font: 22px/1.15 'VT323', monospace; }
+.klein { color: #c9b4bc; font-size: 19px; }
+
+#spiel { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#buehne { position: relative; flex: 1; overflow: hidden; }
+#szene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* ---------- Anzeigen über der Szene ---------- */
+.hud { position: absolute; display: flex; gap: 10px; align-items: center; }
+#oben { top: 10px; left: 10px; right: 10px; justify-content: space-between; flex-wrap: wrap; }
+#unten { bottom: 12px; left: 10px; right: 10px; justify-content: center; flex-wrap: wrap; }
+
+.kasten {
+  background: var(--panel);
+  border: 3px solid var(--umriss);
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 2px var(--panel-hell), 0 4px 0 var(--umriss);
+  padding: 6px 14px 8px;
+}
+#geld { color: var(--verkauf); }
+/* feste Breite: passt für die längste Kurzform (z. B. „9,99 Quad.“), damit nichts springt */
+.waehrungen { display: flex; flex-direction: column; gap: 6px; padding: 8px 14px; font-size: clamp(11px, 1.5vw, 14px); width: calc(11.5em + 40px); box-sizing: border-box; }
+.waehrung { display: flex; align-items: center; gap: 8px; font: 1em 'Press Start 2P', monospace; white-space: nowrap; }
+.waehrung i svg { width: 20px; height: 20px; display: block; }
+.waehrung.sterne { color: #8fd0ff; }
+.waehrung.gems { color: #c88aff; }
+
+/* ---------- Knöpfe: dicker Rand, runde Ecken, Klotz-Schatten ---------- */
+button {
+  font: 11px 'Press Start 2P', monospace;
+  color: var(--text-dunkel);
+  background: var(--creme);
+  border: 3px solid var(--umriss);
+  border-radius: 10px;
+  padding: 8px 12px;
+  min-height: 44px;
+  cursor: pointer;
+  flex: none;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .15), inset 0 2px 0 rgba(255, 255, 255, .6), 0 4px 0 var(--umriss);
+  transition: transform .05s, box-shadow .05s;
+  position: relative;
+}
+button:hover:not(:disabled) { filter: brightness(1.06); }
+button:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .15), 0 1px 0 var(--umriss);
+}
+button:disabled {
+  background: #6e5a64; color: #b9a8b0; cursor: not-allowed;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .2), 0 4px 0 var(--umriss);
+}
+button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+/* Große Aktions-Knöpfe mit Symbol und Tasten-Hinweis.
+   Feste Größe: passt für den längsten Text (12 Zeichen, z. B. „Packing 4.3s“). */
+.aktion {
+  display: flex; align-items: center; gap: 10px;
+  width: 152px; height: 76px; padding: 8px;
+  font-size: 11px; border-radius: 14px; box-sizing: border-box;
+}
+.aktion .label { min-width: 0; white-space: nowrap; overflow: hidden; }
+button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+button i { display: inline-flex; flex: none; }
+button i svg { width: 18px; height: 18px; }
+.aktion { flex-direction: column; justify-content: center; gap: 6px; }
+.aktion i svg { width: 28px; height: 28px; }
+.kinfo { display: flex; align-items: center; gap: 10px; }
+.kicon { flex: none; display: block; }
+.kicon svg { width: 34px; height: 34px; display: block; }
+.aktion.bau { background: var(--bau); }
+.aktion.polier { background: var(--polier); }
+.aktion.pack { background: var(--pack); }
+.aktion.verkauf { background: var(--verkauf); }
+.aktion.manager { background: var(--manager); }
+.aktion:disabled { filter: saturate(.25) brightness(.75); color: var(--text-dunkel); }
+.taste {
+  position: absolute; top: -10px; left: -8px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--creme); border: 3px solid var(--umriss);
+  font-size: 9px; line-height: 16px; text-align: center; color: var(--text-dunkel);
+}
+
+.zweit { background: var(--beere); }
+.gefahr { background: var(--rot); color: #fff; }
+
+/* ---------- Menü mit Reitern ---------- */
+#menue {
+  height: 25%; min-height: 180px; display: none; flex-direction: column;
+  background: var(--panel);
+  border-top: 4px solid var(--umriss);
+  box-shadow: inset 0 3px 0 var(--panel-hell);
+}
+#menue.offen { display: flex; }
+#reiter { display: flex; gap: 6px; padding: 10px 10px 4px; overflow-x: auto; flex: none; }
+#reiter button { font-size: 10px; min-height: 40px; }
+#reiter button:disabled { background: #6e5a64; color: #b9a8b0; }
+#reiter button:not(.aktiv):not(.zweit) { background: var(--creme-dunkel); color: #6b5560; }
+#reiter button.aktiv { background: var(--verkauf); }
+#reiter .schliessen { margin-left: auto; min-width: 44px; }
+#reiter button[hidden] { display: none; }
+#reiter { padding-top: 14px; padding-right: 14px; }
+/* Stern an neuen Reitern (und am Upgrades-Knopf), bis man einmal draufgeklickt hat */
+.tabStern { position: absolute; top: -11px; right: -11px; z-index: 2; pointer-events: none;
+            filter: drop-shadow(0 2px 0 var(--umriss)); }
+.tabStern[hidden] { display: none; }
+.tabStern i svg { width: 22px; height: 22px; display: block; }
+#reiter button.neu { animation: wackeln 1s ease-in-out infinite; }
+#umzugBox[hidden] { display: none; }
+/* Knöpfe, die zum ersten Mal auftauchen, ploppen kurz auf */
+#unten button[hidden], .ecke button[hidden] { display: none; }
+.auftauchen { animation: auftauchen .6s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes auftauchen { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+#inhalt {
+  flex: 1; overflow-y: auto; padding: 8px 10px 14px; display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 10px; align-content: start;
+  grid-auto-rows: 86px;   /* alle Karten gleich hoch */
+}
+.karte {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  background: var(--creme); color: var(--text-dunkel);
+  border: 3px solid var(--umriss); border-radius: 10px;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .1), 0 3px 0 var(--umriss);
+  padding: 8px 10px; height: 86px; box-sizing: border-box; overflow: hidden;
+  font-size: 17px; line-height: 1;
+}
+.karte .kinfo { flex: 1; min-width: 0; height: 100%; }
+/* Info-Kachel: nur Information, nichts zu kaufen → andere Farbe, flach, fette Schrift */
+.karte.infokarte { background: #d6e6ef; border-style: solid; box-shadow: inset 0 0 0 2px #eef6fa; }
+.karte.infokarte .klein { font-weight: bold; color: var(--text-dunkel); }
+.karte .kicon { width: 34px; display: flex; justify-content: center; }
+.karte .kicon svg { width: 30px; height: 30px; }
+.karte .ktext { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.karte .ktext b { font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Infotext: höchstens 3 Zeilen */
+.karte .klein { color: #6b5560; font-size: 16px; line-height: 1.05;
+                display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+/* Knöpfe in den Karten: immer gleich groß, Text darf auf 2 Zeilen */
+.karte button { background: var(--verkauf); font-size: 9px; line-height: 1.35; width: 108px; height: 46px; min-height: 0;
+                padding: 4px 6px; white-space: normal; text-align: center; flex: none; }
+.karte button:disabled { background: #d8c8b8; color: #9a8a90; box-shadow: 0 3px 0 var(--umriss); }
+.karte button.gefahr { background: var(--rot); }
+/* Uhr, die gerade gebaut wird: Knopf im Blau der Info-Kacheln statt grau */
+.karte button.gewaehlt:disabled { background: #d6e6ef; color: var(--text-dunkel); font-weight: bold;
+                                  box-shadow: inset 0 0 0 2px #eef6fa, 0 3px 0 var(--umriss); }
+
+#fehler { position: fixed; left: 10px; bottom: 10px; z-index: 9; background: #a33; color: #fff;
+          padding: 8px; font-size: 18px; display: none; max-width: 90%; border-radius: 8px; }
+
+.umzug { min-width: 200px; cursor: help; }
+.umzugKopf { display: flex; align-items: center; gap: 8px; font: 10px 'Press Start 2P', monospace; color: #c9b4bc; }
+.umzug.bereit .umzugKopf { color: var(--verkauf); }
+.umzugKopf svg { width: 18px; height: 16px; display: block; }
+.umzug .klein { font-size: 16px; }
+@media (max-width: 600px) { .umzug { min-width: 0; padding: 4px 8px; } .umzug .klein { display: none; } }
+.boost { display: flex; align-items: center; gap: 5px; font: 8px 'Press Start 2P', monospace; color: var(--verkauf);
+         animation: leuchten 0.8s ease-in-out infinite alternate;
+         align-self: flex-start; width: max-content; padding: 3px 8px 4px; border-width: 2px; border-radius: 8px;   /* kompakt */
+         box-shadow: inset 0 0 0 1px var(--panel-hell), 0 2px 0 var(--umriss); }
+.boost[hidden], .vipknopf[hidden] { display: none; }
+.vipknopf { background: #f0c050; animation: wackeln 1s ease-in-out infinite; }
+.boost svg { width: 14px; height: 14px; display: block; }
+#oben { align-items: flex-start; flex-wrap: nowrap; gap: 8px; }
+.links { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+#oben .ecke { margin-left: auto; }
+
+/* ---------- Kleine Knöpfe oben rechts ---------- */
+.ecke { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; flex-shrink: 0; }   /* untereinander, passt auch aufs Handy */
+/* nur Symbole: groß, aber schmal (quadratisch) */
+.ecke .kleinknopf { justify-content: center; width: 46px; height: 46px; min-height: 0; padding: 0; border-radius: 10px; position: relative; }
+.ecke .kleinknopf > span:not(.badge) { display: none; }   /* keine Texte/Zahlen (Erfolge-Zähler, „VIP bedienen“) */
+.ecke .kleinknopf i svg { width: 24px; height: 28px; }
+.ecke .zahnrad i svg { width: 24px; height: 24px; }
+#vollbildBtn { display: inline-flex; align-items: center; gap: 8px; }
+#vollbildBtn i svg { width: 16px; height: 16px; display: block; }
+.kleinknopf { min-height: 38px; padding: 4px 10px; font-size: 10px; border-radius: 9px; gap: 6px; }
+.kleinknopf i svg { width: 18px; height: 22px; }
+#erfolgeBtn { background: var(--verkauf); }
+
+/* ---------- Einstellungen ---------- */
+.zahnrad i svg { width: 20px; height: 20px; }
+.einstReiter { display: flex; gap: 6px; padding: 0 16px 8px; flex-wrap: wrap; }
+.einstReiter button { font-size: 10px; min-height: 40px; background: var(--creme-dunkel); color: #6b5560; }
+.einstReiter button.aktiv { background: var(--verkauf); color: var(--text-dunkel); }
+.einstReiter i svg { width: 16px; height: 18px; display: block; }
+.epanel { overflow-y: auto; }
+.epanel[hidden] { display: none; }
+#statistikListe { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 10px; padding: 6px 16px 18px; }
+.statBlock { background: var(--creme); color: var(--text-dunkel); border: 3px solid var(--umriss); border-radius: 10px; padding: 8px 12px; }
+.statBlock h3 { margin: 0 0 6px; font: 11px 'Press Start 2P', monospace; color: #9a5a10; }
+.statZeile { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 10px; font-size: 18px; line-height: 1.25; border-bottom: 1px dashed #d8c8b8; }
+.statZeile:last-child { border-bottom: 0; }
+.statZeile span { min-width: 0; }
+.statZeile b { white-space: nowrap; text-align: right; }
+.allgemein { display: flex; flex-direction: column; gap: 14px; padding: 6px 16px 18px; }
+.sprachKnopf { background: var(--creme-dunkel); font-size: 11px; }
+.sprachKnopf.aktiv { background: var(--verkauf); outline: 3px solid #fff; outline-offset: 2px; }
+
+/* ---------- Erfolge-Fenster ---------- */
+/* ---------- Profil-Fenster ---------- */
+.overlay { position: fixed; inset: 0; z-index: 20; display: none;
+           align-items: center; justify-content: center; padding: 16px; background: rgba(20, 10, 20, .6); }
+.overlay.offen { display: flex; }
+#profilBtn { background: var(--polier); }
+#profilIcon svg, #profilKopfIcon svg { width: 16px; height: 22px; display: block; }
+.fensterKopf > #profilKopfIcon svg { width: 28px; height: 38px; }
+.profilInhalt { display: flex; gap: 18px; padding: 8px 16px 18px; overflow-y: auto; flex-wrap: wrap; }
+.vorschau { flex: none; display: flex; flex-direction: column; align-items: center; gap: 6px;
+            background: var(--creme); border: 3px solid var(--umriss); border-radius: 12px; padding: 14px 18px; }
+#profilVorschau svg { width: 100px; height: 130px; display: block; }
+.profilFelder { flex: 1 1 300px; display: flex; flex-direction: column; gap: 12px; }
+.feld { display: flex; flex-direction: column; gap: 6px; font: 10px 'Press Start 2P', monospace; color: var(--verkauf); }
+.feld input { font: 20px 'VT323', monospace; padding: 8px 10px; border: 3px solid var(--umriss); border-radius: 8px;
+              background: var(--creme); color: var(--text-dunkel); min-height: 44px; }
+.feld input:focus { outline: 3px solid var(--verkauf); }
+.auswahl { display: flex; flex-wrap: wrap; gap: 8px; }
+.farbe { width: 36px; height: 36px; min-height: 36px; padding: 0; border-radius: 50%; }
+.farbe.aktiv, .vorlage.aktiv { outline: 3px solid #fff; outline-offset: 2px; }
+.vorlage { flex-direction: column; gap: 2px; padding: 4px 8px; min-height: 0; font-size: 8px; background: var(--creme); }
+.vorlage svg { width: 26px; height: 34px; display: block; }
+.hinweis { margin: 0; font: 17px 'VT323', monospace; }
+
+#erfolgeFenster { position: fixed; inset: 0; z-index: 20; display: none;
+                  align-items: center; justify-content: center; padding: 16px; background: rgba(20, 10, 20, .6); }
+#erfolgeFenster.offen { display: flex; }
+.fenster { width: min(760px, 100%); max-height: 86vh; display: flex; flex-direction: column;
+           background: var(--panel); border: 4px solid var(--umriss); border-radius: 14px;
+           box-shadow: inset 0 0 0 3px var(--panel-hell), 0 6px 0 var(--umriss); }
+.fensterKopf { display: flex; align-items: center; gap: 12px; padding: 14px 16px 8px; }
+.fensterKopf > i svg { width: 30px; height: 38px; }
+.fensterKopf b { font-family: 'Press Start 2P', monospace; font-size: 15px; color: var(--verkauf); }
+.fensterKopf button { margin-left: auto; }
+.fensterKopf button + button { margin-left: 0; }
+#erfolgeListe { overflow-y: auto; padding: 6px 16px 18px; display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+.erfolg { display: flex; gap: 12px; align-items: center; padding: 8px 12px;
+          background: #4a3340; color: #c9b4bc; border: 3px solid var(--umriss); border-radius: 10px; font-size: 19px; line-height: 1.1; }
+.erfolg.fertig { background: var(--creme); color: var(--text-dunkel); box-shadow: 0 3px 0 var(--umriss); }
+.erfolg.fertig .klein { color: #6b5560; }
+.erfolg.bereit { background: #fff6c8; color: var(--text-dunkel); box-shadow: 0 3px 0 var(--umriss), 0 0 0 3px var(--verkauf);
+                 animation: leuchten 1.2s ease-in-out infinite alternate; }
+.erfolg.bereit .klein { color: #6b5560; }
+@keyframes leuchten { from { box-shadow: 0 3px 0 var(--umriss), 0 0 0 2px var(--verkauf); } to { box-shadow: 0 3px 0 var(--umriss), 0 0 0 6px var(--verkauf); } }
+.ekopf { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.punkte { display: inline-flex; gap: 4px; }
+.punkt { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--umriss); background: #2b1d26; }
+.punkt.voll { background: var(--verkauf); }
+.punkt.bereit { background: #fff; box-shadow: 0 0 0 2px var(--verkauf); }
+.erfolg.fertig .punkt, .erfolg.bereit .punkt:not(.voll):not(.bereit) { background: #d8c8b8; }
+.erfolg.fertig .punkt.voll, .erfolg.bereit .punkt.voll { background: var(--verkauf); }
+.belohnung { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 18px; color: var(--verkauf); }
+.erfolg.fertig .belohnung, .erfolg.bereit .belohnung { color: #9a5a10; }
+.belohnung i svg { width: 16px; height: 16px; display: block; }
+.erhalten { margin-top: 4px; }
+.erhalten .belohnung { margin-top: 1px; }
+/* Boni-Ansicht im Erfolge-Fenster */
+.boniKnopf { background: var(--polier); }
+.boniKnopf.aktiv { background: var(--verkauf); }
+#boniListe { overflow-y: auto; padding: 4px 16px 18px; display: flex; flex-direction: column; gap: 6px; }
+#boniListe[hidden], #erfolgeListe[hidden] { display: none; }
+.boniHinweis { margin: 0 0 4px; }
+.boniZeile { display: flex; justify-content: space-between; align-items: center; gap: 12px;
+             background: var(--creme); color: var(--text-dunkel); border: 3px solid var(--umriss); border-radius: 10px;
+             padding: 6px 12px; font-size: 20px; }
+.boniZeile span { display: flex; align-items: center; gap: 8px; }
+.boniZeile i svg { width: 18px; height: 18px; display: block; }
+.boniZeile b { font: 13px 'Press Start 2P', monospace; color: #9a5a10; white-space: nowrap; }
+.boniZeile.leer { opacity: .55; }
+.sammeln { margin-top: 6px; min-height: 36px; font-size: 10px; background: var(--verkauf); }
+.haken { display: inline-block; margin-top: 4px; font: 9px 'Press Start 2P', monospace; color: #4a8a4a; }
+.badge { display: none; position: absolute; top: -9px; right: -9px; min-width: 20px; height: 20px; padding: 0 4px;
+         border-radius: 10px; background: var(--rot); color: #fff; border: 2px solid var(--umriss);
+         font: 9px/16px 'Press Start 2P', monospace; text-align: center; }
+#erfolgeBtn.neu .badge { display: block; }
+#erfolgeBtn.neu { animation: wackeln 1s ease-in-out infinite; }
+@keyframes wackeln { 0%, 100% { transform: rotate(0); } 10% { transform: rotate(-6deg); } 20% { transform: rotate(6deg); } 30% { transform: rotate(0); } }
+.erfolg .kicon svg { width: 28px; height: 36px; }
+.erfolg > div { flex: 1; }
+.ebalken { height: 8px; margin: 5px 0 2px; background: #2b1d26; border: 2px solid var(--umriss); border-radius: 4px; overflow: hidden; }
+.ebalken div { height: 100%; background: var(--verkauf); }
+
+/* ---------- Einblendung bei neuem Erfolg ---------- */
+/* unten über den Aktions-Knöpfen, gleitet von unten rein */
+#meldung { position: fixed; bottom: 168px; left: 50%; z-index: 30; transform: translate(-50%, 30px); opacity: 0;
+           display: flex; align-items: center; gap: 10px; padding: 8px 16px;
+           background: var(--creme); color: var(--text-dunkel); font: 12px 'Press Start 2P', monospace;
+           border: 3px solid var(--umriss); border-radius: 12px; box-shadow: 0 4px 0 var(--umriss);
+           transition: transform .3s, opacity .3s; pointer-events: none; white-space: nowrap; max-width: calc(100% - 20px); }
+#meldung.sichtbar { transform: translate(-50%, 0); opacity: 1; }
+#meldung svg { width: 22px; height: 28px; display: block; }
+@media (prefers-reduced-motion: reduce) { #meldung, button { transition: none; } .erfolg.bereit, #erfolgeBtn.neu, #reiter button.neu, #menueBtn.neu, .auftauchen { animation: none; } }
+
+/* ---------- Breitbild: Knöpfe unten, Upgrade-Menü als Leiste rechts ---------- */
+@media (min-width: 900px) and (min-aspect-ratio: 6/5) {
+  /* Menü liegt ÜBER dem Laden (kein Rauszoomen); Knöpfe und Ecke rücken nach links */
+  #menue { position: absolute; top: 0; right: 0; bottom: 0; z-index: 10; height: auto; min-height: 0; width: 460px;
+           border-top: 0; border-left: 4px solid var(--umriss); box-shadow: inset 3px 0 0 var(--panel-hell); }
+  #reiter { flex-wrap: wrap; overflow: visible; row-gap: 14px; }
+  #inhalt { grid-template-columns: 1fr; }
+  #unten { gap: 14px 12px; flex-wrap: wrap; }
+  .aktion { width: 180px; height: 54px; padding: 6px 10px; font-size: 10px; flex-direction: row; justify-content: flex-start; gap: 10px; }
+  #menueBtn { height: 54px; }
+  #spiel:has(#menue.offen) #unten, #spiel:has(#menue.offen) #oben { right: 470px; }
+  #meldung { bottom: 92px; }
+  #spiel:has(#menue.offen) ~ #meldung { left: calc((100% - 470px) / 2); }
+}
+
+/* ---------- Handy ---------- */
+@media (max-width: 600px) {
+  #unten { gap: 12px 8px; }
+  .aktion { width: calc((100% - 24px) / 4); flex: none; min-width: 0; gap: 4px; font-size: 8px; padding: 6px 4px; height: 72px; }
+  .aktion i svg { width: 22px; height: 22px; }
+  #meldung { white-space: normal; text-align: left; font-size: 10px; width: max-content; }
+  /* Karten im Menü am Handy etwas kompakter */
+  #inhalt { padding: 8px 8px 14px; gap: 8px; }
+  .karte { padding: 6px 8px; gap: 6px; }
+  .karte .kinfo { gap: 6px; }
+  .karte .kicon { width: 26px; }
+  .karte .kicon svg { width: 24px; height: 24px; }
+  .karte .ktext b { font-size: 16px; }
+  .karte .klein { font-size: 15px; }
+  .karte button { width: 92px; font-size: 8px; }
+  /* am Handy: Platz für zwei Zeilen reserviert, damit die Höhe nie springt */
+  .aktion .label { white-space: normal; text-align: center; line-height: 1.3; height: 2.6em;
+                   display: flex; align-items: center; justify-content: center; }
+}
