@@ -66,7 +66,7 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [x] VIP-Boost-Anzeige deutlich kleiner („Preis ×5 · 20 s“)
 - [x] Laden-/Ruf-Reiter aufgeräumt: hellblaue Info-Kacheln, Ladenausbau oben und als eine Kachel, Stern-Info in der Laden-Kachel
 - [x] Uhren-Reiter: Knopf der Uhr, die gerade gebaut wird, hellblau statt grau
-- [x] Spiel heißt jetzt **WatchHawks**; Versionsverwaltung auf GitHub (RayMichi/WatchHawks), Claude lädt jede Änderung hoch, spielbar über GitHub Pages
+- [x] Spiel heißt jetzt **WatchHawks**; Versionsverwaltung auf GitHub (RayMichi/WatchHawks), Claude lädt jede Änderung hoch, spielbar über GitHub Pages (läuft, von Michi am Handy getestet)
 
 ## Als Nächstes
 - [ ] **Balancing nach Bot-Test 18.11.:** Frühphase (Laden 1–4) zu zäh, danach explodieren Sterne/Geld; Spätspiel ist nach wenigen Minuten maximiert → Michi entscheidet, was zuerst
@@ -88,4 +88,5 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 
 ## Später
 - [ ] Balancing-Feinschliff nach Testrunden
+- [ ] Spielstand sichern: Export/Import als Code, später evtl. Cloud-Speicher mit Login (erst wenn das Spiel weiter ist)
 - [ ] Als Desktop-App verpacken (für Steam)

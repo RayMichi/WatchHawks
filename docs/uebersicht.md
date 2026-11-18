@@ -2,6 +2,7 @@
 
 Spielname: **WatchHawks** (früher „Juwelier Idle“; seit 18.11.2026).
 Stand: 18.11.2026 · Spielen: https://raymichi.github.io/WatchHawks/ · Code: https://github.com/RayMichi/WatchHawks · Claude-Test-Link: https://claude.ai/artifact/HZfx7nf5gTeKaN2UrTenUh
+**Ablauf bei Änderungen:** Claude testet, schreibt in Michis Ordner, lädt zu GitHub hoch (Pages aktualisiert sich nach 1–2 min) und aktualisiert den Claude-Link. Spielstände liegen nur im Browser des jeweiligen Geräts (localStorage `juwelierIdle-v2`), jede Adresse hat ihren eigenen. Safari löscht sie nach ~7 Tagen ohne Besuch, außer das Spiel liegt auf dem Home-Bildschirm.
 Sicherung der Pixel-Version vor der doppelten Auflösung: Ordner `juwelier-idle-versionen/pixel-stil` · Link: https://claude.ai/artifact/BAQu1ubJX6CXpqWYi2khqE
 
 ## Kern-Loop (manuell oder per Mitarbeiter)
