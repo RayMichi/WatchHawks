@@ -29,7 +29,7 @@ Auch Leertaste/Enter blättern weiter; die Spiel-Tasten 1–4 sind im Intro gesp
 
 **Knöpfe freischalten (nur beim allerersten Spiel):** Am Anfang gibt es nur **Bauen**. **Polieren** ploppt auf, sobald die erste Uhr gebaut ist, **Verpacken** nach dem ersten Polieren, **Verkaufen** nach dem ersten Verpacken, der **Erfolge**-Knopf nach der ersten verkauften Uhr und **Upgrades** nach 3 verkauften Uhren (mit Stern, bis man das Menü zum ersten Mal öffnet). Einmal da, bleiben die Knöpfe für immer, auch nach dem Umzug (`knopfFrei`).
 
-**Reiter freischalten:** Am Anfang gibt es nur **Ausrüstung**. Nach dem ersten Upgrade kommt **Uhren**, nach dem Kauf des Store Managers **Manager**, **Laden**, sobald alle vier Mitarbeiter eingestellt sind (mind. Stufe 1, `alleMitarbeiter()`) **oder** 8.000 € in der Filiale verdient sind (`LADEN_TAB_AB`, was zuerst kommt; der erste Stern kommt bei 10.000 €) und nach dem ersten Umzug **Ruf**. Ein neuer Reiter wackelt mit großem Stern an der Ecke, bis man draufklickt. Solange ein Reiter neu ist, hat auch der Upgrades-Knopf einen Stern (wackelt aber nicht). Freigeschaltete Reiter bleiben nach dem Umzug (`tabFrei`, `tabGesehen`), nur Manager verschwindet bis zum nächsten Kauf. Die Umzugs-Anzeige oben erscheint zusammen mit dem Laden-Reiter.
+**Reiter freischalten:** Am Anfang gibt es nur **Ausrüstung**. Nach dem ersten Upgrade kommt **Uhren**, nach dem Kauf des Store Managers **Manager**, **Laden**, sobald alle vier Mitarbeiter eingestellt sind (mind. Stufe 1, `alleMitarbeiter()`) **oder** 5.000 € in der Filiale verdient sind (`LADEN_TAB_AB`, was zuerst kommt; der erste Stern kommt bei 6.000 €) und nach dem ersten Umzug **Ruf**. Ein neuer Reiter wackelt mit großem Stern an der Ecke, bis man draufklickt. Solange ein Reiter neu ist, hat auch der Upgrades-Knopf einen Stern (wackelt aber nicht). Freigeschaltete Reiter bleiben nach dem Umzug (`tabFrei`, `tabGesehen`), nur Manager verschwindet bis zum nächsten Kauf. Die Umzugs-Anzeige oben erscheint zusammen mit dem Laden-Reiter.
 Bot-Test (17.11.): Laden-Reiter nach ~24 min, erster Stern nach ~28 min (vorher ~26 min).
 
 Jede Station hält **eine** Uhr. Ist die nächste Station voll, wartet die fertige Uhr (Sprechblase „!“) – die Kette staut sich. Tastatur: 1 / 2 / 3 / 4. Menü-Knopf „Upgrades“ öffnet die Reiter Uhren, Ausrüstung, Laden, Manager, Ruf.
@@ -150,8 +150,8 @@ Uhren pro Sekunde = langsamster Schritt der Kette (Bauen, Polieren, Verpacken + 
 Maximal 2 h, mehr über Ruf-Shop „Nachtschicht“ und die Rarität „Sanduhr“.
 
 ## Filialen (Prestige)
-Im Reiter **Laden → Neue Filiale** (zweimal klicken). Ruf-Sterne = Wurzel(in dieser Filiale verdient ÷ 10.000).
-Beispiele: 10.000 € → 1 ★ · 40.000 € → 2 ★ · 90.000 € → 3 ★ · 250.000 € → 5 ★ · 1 Mio. € → 10 ★ · 4 Mio. € → 20 ★.
+Im Reiter **Laden → Neue Filiale** (zweimal klicken). Ruf-Sterne = Wurzel(in dieser Filiale verdient ÷ 6.000) (`STERN_TEILER`, seit 19.11.; vorher ÷ 10.000).
+Beispiele: 6.000 € → 1 ★ · 24.000 € → 2 ★ · 54.000 € → 3 ★ · 150.000 € → 5 ★ · 600.000 € → 10 ★ · 2,4 Mio. € → 20 ★.
 Jeder **jemals verdiente** Stern gibt dauerhaft **+10 % Verkaufspreis** (auch wenn er ausgegeben wurde).
 Oben neben dem Geld zeigt die **Umzugs-Anzeige**, wie viele Sterne es jetzt gäbe, plus Balken bis zum nächsten Stern. Umziehen ist nie Pflicht.
 Lage-Bonus pro Filiale (LAGE_BONUS) ist auf 1,0 = aus gestellt – siehe Playtest.
@@ -240,6 +240,18 @@ Hinterhof (2 Vitrinen, 2 Lager): 1. Stern nach ~26 min, danach flacht das Einkom
 - Frühphase zäh: Hinterhof 1. Stern nach 26,7 min (Store Manager nach ~9 min), Fußgängerzone nach 20 min nur 1 ★ (37 Tsd. €), Einkaufszentrum/Hauptstraße 2 ★.
 - Danach Explosion: ab Prachtstraße 1 (20-min-Rhythmus) 8 → 38 → 80 → 145 → 187 → 226 → 281 ★; Team 10/10/10/15 und alle 5 Modelle nach 1–7 min fertig → Spätspiel braucht Inhalt.
 - Verkäuferin: anfangs verkauft der Spieler fast alles selbst (100 %), in den großen Läden sinkt der Anteil auf 30 % → 14 % → 1 %. Stufe 15 wird ab dem 6. Laden (20-min-Rhythmus) erreicht.
+
+**Playtest 19.11.2026 – erster Stern bei 6.000 € statt 10.000 € (Michi: Hinterhof ab ~3.000 € zu zäh):**
+Grund für die Zähigkeit: Im Hinterhof gibt es nur Quarz + Taucher (12 €), Lager max. 2, langsame Verkäuferin → ab ~3.000 € (Min. 14) bleibt das Einkommen bei ~600 €/min.
+
+| | vorher (÷ 10.000) | jetzt (÷ 6.000) |
+|---|---|---|
+| 1. Stern im Hinterhof | 26,7 min | 19,5 min |
+| 4 h, frühestens nach 20 min umziehen | 971 ★, 2,7 Mrd. € | 1.674 ★, 5,5 Mrd. € |
+| 4 h, sofort umziehen | 141 ★ | 622 ★ (jeder Laden nur 1 ★, nach 4,5–20 min) |
+
+- 20-min-Rhythmus: Hinterhof 1 ★ → Fußgängerzone 2 ★ → Einkaufszentrum 3 ★ → Hauptstraße 6 ★ → Prachtstraße 27 → 73 ★ …
+- Frühphase spürbar kürzer, das Spätspiel explodiert aber noch stärker als vorher → Spätspiel-Balancing bleibt offen.
 
 ## Einstellungen (Zahnrad oben rechts)
 

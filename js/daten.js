@@ -40,8 +40,8 @@ const UPGRADES = {
 };
 // Packtische: ab der 3. Filiale (Einkaufszentrum) kann ein zweiter dazugekauft werden
 const TISCH2_AB = 2;
-// Reiter Laden erscheint, sobald alle vier Mitarbeiter eingestellt sind (mind. Stufe 1) ODER 8.000 € in der Filiale verdient sind
-const LADEN_TAB_AB = 8000;
+// Reiter Laden erscheint, sobald alle vier Mitarbeiter eingestellt sind (mind. Stufe 1) ODER 5.000 € in der Filiale verdient sind
+const LADEN_TAB_AB = 5000;
 const alleMitarbeiter = (team = spiel.team) => ['bau', 'polier', 'pack', 'verkauf'].every(id => (team[id] || 0) >= 1);
 const packTische = () => 1 + (spiel.upg.tisch2 && spiel.filiale >= TISCH2_AB ? 1 : 0);
 const freierTisch = () => { for (let i = 0; i < packTische(); i++) if (!spiel.packs[i]) return i; return -1; };
@@ -153,7 +153,7 @@ function filialName(i = spiel.filiale) {
   if (i <= letzte) return nm('filialen', i, FILIALEN[i].name);
   return t('filiale.nr', { n: nm('filialen', letzte, FILIALEN[letzte].name), i: i - letzte + 1 });
 }
-const STERN_TEILER = 10000;   // so viel € in einer Filiale = 1. Stern
+const STERN_TEILER = 6000;    // so viel € in einer Filiale = 1. Stern (seit 19.11., vorher 10.000)
 const STERN_BONUS = 10;       // % Verkaufspreis pro jemals verdientem Stern
 const LAGE_BONUS = 1.0;       // Preisfaktor pro Filiale (1.0 = aus; Playtest: >1 macht ständiges Umziehen zu stark)
 const sterneFuer = verdient => Math.floor(Math.sqrt(verdient / STERN_TEILER));
