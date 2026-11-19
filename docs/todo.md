@@ -69,6 +69,7 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [x] **Intro beim ersten Start:** Dach mit „WatchHawks“-Schild + „Tippen zum Starten“ → Lisa (Porträt von Michi) mit 2 Texten → Dach fliegt weg, Spiel startet; Titel mit großem pulsierendem Start-Knopf, Haus wandert nach dem Tippen in die Mitte
 - [x] **Lisa beim ersten Umzug:** neuer Laden mit eigenem Dach (Schiefer, Gauben, Schild mit Filialname), 4 Texte erklären das Sternesystem
 - [x] Bugfix: Intro-Status ging beim Umzug verloren (wäre nach dem Neuladen nochmal gekommen)
+- [x] Erfolge-Fenster und Einstellungen liegen über den Meldungen (VIP/Erfolg)
 - [x] Spiel heißt jetzt **WatchHawks**; Versionsverwaltung auf GitHub (RayMichi/WatchHawks), Claude lädt jede Änderung hoch, spielbar über GitHub Pages (läuft, von Michi am Handy getestet)
 
 ## Als Nächstes
