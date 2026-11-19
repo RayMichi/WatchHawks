@@ -70,13 +70,13 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [x] **Lisa beim ersten Umzug:** neuer Laden mit eigenem Dach (Schiefer, Gauben, Schild mit Filialname), 4 Texte erklären das Sternesystem
 - [x] Bugfix: Intro-Status ging beim Umzug verloren (wäre nach dem Neuladen nochmal gekommen)
 - [x] Erfolge-Fenster und Einstellungen liegen über den Meldungen (VIP/Erfolg)
-- [x] Laden-Reiter (und Umzugs-Anzeige) erscheinen, sobald alle 4 Mitarbeiter eingestellt sind **oder** 5.000 € verdient sind
-- [x] Erster Stern schon bei 6.000 € (Sterne = Wurzel(verdient ÷ 6.000)) – Hinterhof 1. Stern nach ~19,5 statt ~27 min
+- [x] Laden-Reiter (und Umzugs-Anzeige) erscheinen, sobald alle 4 Mitarbeiter eingestellt sind **oder** 8.000 € verdient sind
+- [x] Frühphase schneller: Taucheruhr 20 € statt 12 € (Freischalten 80 €), erster Stern bleibt bei 10.000 € → Hinterhof 1. Stern nach ~20 statt ~24–27 min (Schwelle 6.000 € getestet und verworfen, blähte das Spätspiel auf)
 - [x] Meldungen oben unter der Geld-Anzeige statt unten (verdecken am Handy nicht mehr den VIP bei offenem Upgrade-Menü)
 - [x] Spiel heißt jetzt **WatchHawks**; Versionsverwaltung auf GitHub (RayMichi/WatchHawks), Claude lädt jede Änderung hoch, spielbar über GitHub Pages (läuft, von Michi am Handy getestet)
 
 ## Als Nächstes
-- [ ] **Balancing Spätspiel:** Frühphase seit 19.11. kürzer (1. Stern bei 6.000 €), Sterne/Geld explodieren ab der Prachtstraße aber noch stärker (4 h: 1.674 ★) → Spätspiel ist nach wenigen Minuten maximiert, braucht Inhalt/Bremse
+- [ ] **Balancing Spätspiel:** Frühphase seit 19.11. kürzer (Taucheruhr 20 €), ab der Prachtstraße explodieren Sterne/Geld aber weiterhin (4 h: 1.169 ★, 29 → 68 → 116 ★ pro Laden) → Spätspiel ist nach wenigen Minuten maximiert, braucht Inhalt/Bremse
 - [ ] Michi testet Figuren/Uhren C im Spiel (Brille im Editor ok? Zeiger lesbar?)
 - [ ] Evtl. Uhren pro Modell unterscheidbarer machen (Details aus Vorschlag B, z. B. Drehring beim Taucher)
 - [ ] Michi testet das neue Prestige-Gefühl (2. Laden immer noch zäh?)
