@@ -84,7 +84,8 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [ ] Weitere Produkte für freie Vitrinen (Ringe, Ketten, Ohrringe …)
 
 ## Langzeitmotivation
-- [ ] Mini-Tutorials mit Lisa (z. B. Ruf-Sterne, Umzug, Mitarbeiter) – Michis Idee; Dialog-Box aus dem Intro wiederverwenden
+- [ ] **Dialog mit Lisa beim ersten Umzug (2. Laden):** erklärt das Sternesystem (Ruf-Sterne, Bonus, Ruf-Shop) – im Intro schon angeteasert; Dialog-Box aus dem Intro wiederverwenden
+- [ ] Weitere Mini-Tutorials mit Lisa (z. B. Mitarbeiter, Raritäten) – Michis Idee
 - [ ] Evtl. zweiter Gesichtsausdruck für Lisa (lachend/zwinkernd)
 - [ ] Weitere Erfolge (Michi sammelt Ideen)
 
