@@ -8,6 +8,7 @@ const intro = { phase: null, art: 'intro', nr: 0, voll: '', zeichen: 0, timer: n
 const WANDER_DAUER = 0.8;            // Sekunden: Haus wandert vom Titel-Platz in die Mitte
 const DACH_DAUER = 1.4;              // Sekunden, bis das Dach weg ist
 const DIALOGE = {
+  konzern: ['konzern.text1', 'konzern.text2', 'konzern.text3'],
   intro: ['intro.text1', 'intro.text2'],
   umzug: ['umzug.text1', 'umzug.text2', 'umzug.text3', 'umzug.text4'],
 };
@@ -38,6 +39,7 @@ function introTippen() {
   } else if (intro.phase === 'dialog') {
     if (intro.zeichen < intro.voll.length) { textFertig(); return; }   // erst ganz anzeigen
     if (intro.nr + 1 < dialogTexte().length) textZeigen(intro.nr + 1);
+    else if (intro.art === 'konzern') konzernDialogEnde();
     else {
       intro.phase = 'dach';
       $('intro').className = 'dach';
@@ -116,6 +118,15 @@ const DACH_STILE = [
   // Fußgängerzone (und später): blaugrauer Schiefer, Dachgauben mit Licht und Blumenkästen, Kupferrinne
   { hell: '#5f6f86', dunkel: '#4b586c', fuge: '#363f4e', first: '#2a313d', licht: '#8193ad', rinne: '#c07a3a',
     schornstein: '#9a5a48', gauben: true },
+  // Einkaufszentrum: helles Flachdach mit Oberlichtern und Lüftern
+  { hell: '#c9ced3', dunkel: '#b4bac0', fuge: '#9aa1a8', first: '#8a9198', licht: '#e2e6ea', rinne: '#7a8288',
+    schornstein: '#9aa1a8', flach: true },
+  // Hauptstraße: dunkler Schiefer mit goldenem First
+  { hell: '#3e3a46', dunkel: '#2f2c36', fuge: '#1f1d25', first: '#c8932e', licht: '#55505f', rinne: '#f0c050',
+    schornstein: '#5a4a4a', gauben: true },
+  // Prachtstraße: violette Ziegel mit Gold
+  { hell: '#6e4a8a', dunkel: '#573a6e', fuge: '#3d2850', first: '#f0c050', licht: '#8e68a8', rinne: '#f0c050',
+    schornstein: '#7a5a6a', gauben: true },
 ];
 const dachStil = () => DACH_STILE[Math.min(spiel.filiale, DACH_STILE.length - 1)];
 function dachZeichnen(L) {
@@ -130,8 +141,9 @@ function dachZeichnen(L) {
   r(x, y, w, mitte - y, D.hell);                        // obere Dachfläche (Licht)
   r(x, mitte, w, y + h - mitte, D.dunkel);              // untere Dachfläche (Schatten)
   // Dachziegel: Reihen mit versetzten Fugen
+  if (D.flach) { flachdach(x, y, w, h, D, 1); }
   let reihe = 0;
-  for (let ry = y + 5; ry < y + h - 2; ry += 5, reihe++) {
+  if (!D.flach) for (let ry = y + 5; ry < y + h - 2; ry += 5, reihe++) {
     if (Math.abs(ry - mitte) < 3) continue;
     r(x, ry, w, P, D.fuge);
     const breit = D.gauben ? 6 : 8;                           // Schiefer: kleinere Platten
@@ -139,8 +151,7 @@ function dachZeichnen(L) {
     r(x, ry + P, w, P, ry < mitte ? D.licht : D.hell);
   }
   // First (Dachkante in der Mitte) + Traufe unten
-  r(x, mitte - 1, w, 2, D.first);
-  r(x, mitte - 1, w, P, D.licht);
+  if (!D.flach) { r(x, mitte - 1, w, 2, D.first); r(x, mitte - 1, w, P, D.licht); }
   r(x, y + h - 2, w, 2, D.rinne);                          // Traufe / Regenrinne
   if (D.gauben) r(x, y + h - 2, w, P, '#e0a060');
   // Schornstein mit Rauch
@@ -177,4 +188,25 @@ function dachZeichnen(L) {
   r(bx, by + bh - 2, bw, 2, '#38202c');
   for (const [dx, dd] of [[2, 2], [bw - 3, 2], [2, bh - 3], [bw - 3, bh - 3]]) r(bx + dx, by + dd, 1, 1, F.gold);
   text(name, L.mitte, by + bh / 2, g, '#ffd77a', '#1d1219');
+}
+
+// Flachdach (Einkaufszentrum): Platten, Oberlichter, Lüfter. f = Maßstab (1 = großes Dach, kleiner = Stadtansicht)
+function flachdach(x, y, w, h, D, f) {
+  r(x, y, w, h, D.hell);
+  r(x + 2 * f, y + 2 * f, w - 4 * f, h - 4 * f, D.dunkel);
+  for (let px = x + 12 * f; px < x + w - 4 * f; px += 12 * f) r(px, y + 2 * f, P, h - 4 * f, D.fuge);
+  const n = Math.max(2, Math.floor(w / (34 * f)));
+  for (let i = 0; i < n; i++) {
+    const ox = Math.round(x + w * (i + 0.5) / n - 7 * f), oy = Math.round(y + h * 0.22);
+    r(ox - P, oy - P, 14 * f + 2 * P, 9 * f + 2 * P, F.umriss);
+    r(ox, oy, 14 * f, 9 * f, '#7fb4d8');                    // Oberlicht (Glas)
+    r(ox, oy, 14 * f, 2 * f, '#b8dcf0');
+    r(ox + 7 * f, oy, P, 9 * f, '#4a7a9a');
+  }
+  for (let i = 0; i < 3; i++) {                            // Lüfter
+    const lx = Math.round(x + w * (0.2 + i * 0.3)), ly = Math.round(y + h * 0.68);
+    r(lx - P, ly - P, 6 * f + 2 * P, 6 * f + 2 * P, F.umriss);
+    r(lx, ly, 6 * f, 6 * f, '#8a9198');
+    r(lx + 1 * f, ly + 1 * f, 4 * f, 4 * f, '#5e656b');
+  }
 }

@@ -153,6 +153,7 @@ function filialName(i = spiel.filiale) {
   if (i <= letzte) return nm('filialen', i, FILIALEN[i].name);
   return t('filiale.nr', { n: nm('filialen', letzte, FILIALEN[letzte].name), i: i - letzte + 1 });
 }
+const KONZERN_PREIS = 50;      // freie Ruf-Sterne für die Konzerngründung
 const STERN_TEILER = 10000;   // so viel € in einer Filiale = 1. Stern
 const STERN_BONUS = 10;       // % Verkaufspreis pro jemals verdientem Stern
 const LAGE_BONUS = 1.0;       // Preisfaktor pro Filiale (1.0 = aus; Playtest: >1 macht ständiges Umziehen zu stark)

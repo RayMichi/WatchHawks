@@ -50,6 +50,11 @@ function eintraege() {
     // Info-Kachel: nur insgesamt verdiente Sterne und ihr Bonus (ausgeben kann man sie in den Kacheln darunter)
     const liste = [{ key: 'ruf-info', icon: 'stern', titel: t('ruf.verdient', { g: spiel.gesamtSterne }), infoKachel: true,
       info: t('ruf.bonus', { p: spiel.gesamtSterne * STERN_BONUS }) }];
+    // Konzern gründen (lila): kostet 50 Sterne, die man gerade frei hat
+    const kOk = spiel.sterne >= KONZERN_PREIS;
+    liste.push({ key: 'konzern', icon: 'laden', klasse: 'konzernkarte', titel: t('konzern.titel'),
+      info: kOk ? t('konzern.info') : t('konzern.fehlt', { n: KONZERN_PREIS, h: spiel.sterne }),
+      knopf: konzernGeklickt && kOk ? t('konzern.wirklich') : `${KONZERN_PREIS} ★`, aus: !kOk, tun: konzernKlick });
     for (const r of RUF_SHOP) {
       const n = spiel.ruf[r.id] || 0, max = n >= r.max, p = r.kosten(n);
       liste.push({ key: 'ruf-' + r.id, icon: r.icon || 'stern', titel: nm('ruf', r.id, r.name),
@@ -103,7 +108,7 @@ function menueAktualisieren() {
   const aufbau = tab + SPRACHE + liste.map(e => e.key + !!e.knopf).join();
   if (aufbau !== gebaut) {
     $('inhalt').innerHTML = liste.map(e => `
-      <div class="karte${e.infoKachel ? ' infokarte' : ''}">
+      <div class="karte${e.infoKachel ? ' infokarte' : ''}${e.klasse ? ' ' + e.klasse : ''}">
         <div class="kinfo"><i class="kicon">${e.icon ? iconSvg(e.icon) : ''}</i>
           <div class="ktext"><b id="t-${e.key}"></b><div class="klein" id="i-${e.key}"></div></div></div>
         ${e.knopf ? `<button data-key="${e.key}" id="b-${e.key}"></button>` : ''}
@@ -357,6 +362,12 @@ function naechsteMeldung() {
 }
 
 // Umzug in neue Filiale: zweimal klicken zur Sicherheit
+let konzernGeklickt = false;
+function konzernKlick() {
+  if (!konzernGeklickt) { konzernGeklickt = true; setTimeout(() => konzernGeklickt = false, 3000); return; }
+  konzernGeklickt = false;
+  konzernStarten();
+}
 let prestigeGeklickt = false;
 function prestigeKlick() {
   if (!prestigeGeklickt) { prestigeGeklickt = true; setTimeout(() => prestigeGeklickt = false, 3000); return; }

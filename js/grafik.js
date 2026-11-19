@@ -7,6 +7,7 @@
 // ===============================================================
 const cv = document.getElementById('szene');
 const ctx = cv.getContext('2d');
+window.ctxHaupt = ctx;
 const off = document.createElement('canvas');
 const octx = off.getContext('2d');
 let U = 4, lox = 0, loy = 0;
@@ -89,9 +90,10 @@ const thema = () => THEMEN[Math.min(spiel.filiale, THEMEN.length - 1)];
 // ---------- Zeichen-Helfer ----------
 // Rechteck in Spieleinheiten; Werte auf das feine Raster (1/S) gerundet
 const P = 1 / S;   // ein feiner Pixel
+let rctx = octx;   // Ziel für r(): normalerweise das Laden-Bild, in der Stadtansicht deren eigene Leinwand
 function r(x, y, w, h, c) {
   const x0 = Math.round((lox + x) * S), y0 = Math.round((loy + y) * S);
-  octx.fillStyle = c; octx.fillRect(x0, y0, Math.round((lox + x + w) * S) - x0, Math.round((loy + y + h) * S) - y0);
+  rctx.fillStyle = c; rctx.fillRect(x0, y0, Math.round((lox + x + w) * S) - x0, Math.round((loy + y + h) * S) - y0);
 }
 
 // Sprite zeichnen. Standardmäßig bekommt jede Figur automatisch
@@ -274,6 +276,7 @@ const text = (...a) => textPuffer.push(a);
 // y = Mitte der Großbuchstaben, x = Mitte des Textes; optional dunkler Schatten unten rechts.
 const webBreite = (t, g) => [...t].length * g - g / 8;   // letzter Zeichenabstand zählt nicht
 function textJetzt(t, x, y, g, farbe, schatten) {
+  const ctx = (typeof textZiel !== 'undefined' && textZiel) || window.ctxHaupt;
   const px = Math.max(6, Math.round(g * U));
   ctx.font = px + 'px "Press Start 2P", monospace';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';

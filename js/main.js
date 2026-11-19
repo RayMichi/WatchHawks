@@ -15,9 +15,11 @@ function schritt() {
   packenWeiter(dt * turbo);
   effekteUpdaten(Math.min(dt, 1));
   introUpdate(Math.min(dt, 0.1));
+  konzernUpdate(Math.min(dt, 0.1));
 
   if (!cv.width) groesse();
-  if (cv.width) { const v = introVersatz(); loy += v; zeichnen(); loy -= v; }   // Intro: Haus verschoben
+  if (cv.width && konzernAktiv()) konzernZeichnen();                               // Stadtansicht / Zoom
+  else if (cv.width) { const v = introVersatz(); loy += v; zeichnen(); loy -= v; }   // Intro: Haus verschoben
   knoepfeAktualisieren();
   seitMenue += dt;
   if (seitMenue > 0.15) { menueAktualisieren(); erfolgePruefen(); erfolgeAktualisieren(); seitMenue = 0; }
@@ -27,6 +29,7 @@ laden();
 spracheSetzen(spiel.sprache);
 offlineBerechnen();
 if (!spiel.introGesehen) introStarten();
+else if (/[?&]stadt\b/.test(location.search)) setTimeout(() => konzernStarten(true), 300);   // Test: Stadtansicht direkt
 groesse();
 schritt();
 setInterval(schritt, 33);
