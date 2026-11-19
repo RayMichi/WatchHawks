@@ -20,7 +20,8 @@ js/               Spielcode (Reihenfolge in index.html wichtig)
   logik.js        Arbeitsschritte, Käufe, Offline-Fortschritt
   grafik.js       Pixel-Laden, Figuren, Effekte
   menue.js        Upgrade-Menü, Einstellungen, Anzeigen
-  intro.js, konzern.js        Intro beim ersten Start (Dach, Lisa, Texte)
+  intro.js         Intro beim ersten Start (Dach, Lisa, Texte)
+  konzern.js       Konzern: Zoom raus, Stadtansicht
   main.js         Spielschleife und Start
 tools/
   playtest-bot.js Zeitraffer-Bot für Balancing-Tests
