@@ -1,22 +1,32 @@
 // ===============================================================
-// 11. INTRO – nur beim allerersten Start
-//     Titel: Laden von oben mit Dach + „WatchHawks“ → Tippen
-//     Dialog: Hintergrund dunkel, Lisa + Textbox (2 Texte) → Tippen
-//     Ende: Dach fliegt nach oben weg, das Spiel geht los
+// 11. INTRO & LISA-DIALOGE
+//     Intro (erster Start): Titel mit Dach + „WatchHawks“ → Tippen → Lisa (2 Texte) → Dach fliegt weg
+//     Umzug (erster Umzug): neuer Laden mit eigenem Dach → Lisa erklärt die Ruf-Sterne (4 Texte) → Dach fliegt weg
 // ===============================================================
 let dachP = 1;                       // 0 = Dach zu, 1 = Dach weg (normales Spiel)
-const intro = { phase: null, nr: 0, voll: '', zeichen: 0, timer: null, wander: 0 };
+const intro = { phase: null, art: 'intro', nr: 0, voll: '', zeichen: 0, timer: null, wander: 0 };
 const WANDER_DAUER = 0.8;            // Sekunden: Haus wandert vom Titel-Platz in die Mitte
 const DACH_DAUER = 1.4;              // Sekunden, bis das Dach weg ist
-const INTRO_TEXTE = ['intro.text1', 'intro.text2'];
+const DIALOGE = {
+  intro: ['intro.text1', 'intro.text2'],
+  umzug: ['umzug.text1', 'umzug.text2', 'umzug.text3', 'umzug.text4'],
+};
+const dialogTexte = () => DIALOGE[intro.art];
 
-function introStarten() {
+function introStarten() { lisaStarten('intro'); }
+
+// Startet einen Dialog mit Lisa. Laden ist dabei mit dem Dach der aktuellen Filiale abgedeckt.
+function lisaStarten(art) {
   dachP = 0;
-  intro.phase = 'titel'; intro.nr = 0; intro.wander = 0;
+  intro.art = art; intro.nr = 0;
+  intro.wander = art === 'intro' ? 0 : 1;                  // nur das Intro hat den Titel-Platz oben
   document.body.classList.add('intro');
+  $('menue').classList.remove('offen');
+  fensterZu();
   const el = $('intro');
   el.hidden = false;
-  el.className = 'titel';
+  if (art === 'intro') { intro.phase = 'titel'; el.className = 'titel'; }
+  else { intro.phase = 'dialog'; el.className = 'dialog'; boxHoeheFestlegen(); textZeigen(0); }
 }
 
 function introTippen() {
@@ -27,7 +37,7 @@ function introTippen() {
     textZeigen(0);
   } else if (intro.phase === 'dialog') {
     if (intro.zeichen < intro.voll.length) { textFertig(); return; }   // erst ganz anzeigen
-    if (intro.nr + 1 < INTRO_TEXTE.length) textZeigen(intro.nr + 1);
+    if (intro.nr + 1 < dialogTexte().length) textZeigen(intro.nr + 1);
     else {
       intro.phase = 'dach';
       $('intro').className = 'dach';
@@ -40,7 +50,7 @@ function boxHoeheFestlegen() {
   const el = $('introText');
   el.style.minHeight = '';
   let hoch = 0;
-  for (const k of INTRO_TEXTE) { el.textContent = t(k); hoch = Math.max(hoch, el.offsetHeight); }
+  for (const k of dialogTexte()) { el.textContent = t(k); hoch = Math.max(hoch, el.offsetHeight); }
   el.style.minHeight = hoch + 'px';
   el.textContent = '';
 }
@@ -49,7 +59,7 @@ window.addEventListener('resize', () => { if (intro.phase === 'dialog') { boxHoe
 // Text Buchstabe für Buchstabe eintippen
 function textZeigen(nr) {
   intro.nr = nr;
-  intro.voll = t(INTRO_TEXTE[nr]);
+  intro.voll = t(dialogTexte()[nr]);
   intro.zeichen = 0;
   $('introText').textContent = '';
   $('intro').classList.remove('fertig');
@@ -87,7 +97,7 @@ function introEnde() {
   intro.phase = null; dachP = 1;
   $('intro').hidden = true;
   document.body.classList.remove('intro');
-  spiel.introGesehen = true;
+  if (intro.art === 'intro') spiel.introGesehen = true; else spiel.lisaUmzug = true;
   speichern();
 }
 
@@ -98,33 +108,45 @@ document.addEventListener('keydown', e => {
 });
 
 // ---------- Dach (wird in zeichnen() statt Ladenschild gemalt) ----------
-const DACH = { hell: '#a4503a', dunkel: '#83402f', fuge: '#62301f', first: '#4f261a', licht: '#c46a4e' };
+// Jede Filiale hat ihr eigenes Dach, damit man sofort sieht: darunter ist ein anderer Laden.
+const DACH_STILE = [
+  // Hinterhof: rote Tonziegel
+  { hell: '#a4503a', dunkel: '#83402f', fuge: '#62301f', first: '#4f261a', licht: '#c46a4e', rinne: '#4f261a',
+    schornstein: '#8a6050', gauben: false },
+  // Fußgängerzone (und später): blaugrauer Schiefer, Dachgauben mit Licht und Blumenkästen, Kupferrinne
+  { hell: '#5f6f86', dunkel: '#4b586c', fuge: '#363f4e', first: '#2a313d', licht: '#8193ad', rinne: '#c07a3a',
+    schornstein: '#9a5a48', gauben: true },
+];
+const dachStil = () => DACH_STILE[Math.min(spiel.filiale, DACH_STILE.length - 1)];
 function dachZeichnen(L) {
   const p = dachP, e = p * p * (3 - 2 * p);                 // weich anfahren und abbremsen
   if (e < 0.35) textPuffer = [];                            // Raumschilder liegen unter dem Dach
   const dy = -e * (L.H + loy + 50);
+  const D = dachStil();
   const x = -4, y = -4 + dy, w = L.W + 8, h = L.H + 8, mitte = y + Math.round(h * 0.42);
   // Schatten aufs Gebäude, solange das Dach noch tief ist
   if (e < 0.6) r(x + 2, y + h, w - 4, 3, `rgba(20,10,16,${0.35 * (1 - e / 0.6)})`);
   r(x - 1, y - 1, w + 2, h + 2, F.umriss);
-  r(x, y, w, mitte - y, DACH.hell);                        // obere Dachfläche (Licht)
-  r(x, mitte, w, y + h - mitte, DACH.dunkel);              // untere Dachfläche (Schatten)
+  r(x, y, w, mitte - y, D.hell);                        // obere Dachfläche (Licht)
+  r(x, mitte, w, y + h - mitte, D.dunkel);              // untere Dachfläche (Schatten)
   // Dachziegel: Reihen mit versetzten Fugen
   let reihe = 0;
   for (let ry = y + 5; ry < y + h - 2; ry += 5, reihe++) {
     if (Math.abs(ry - mitte) < 3) continue;
-    r(x, ry, w, P, DACH.fuge);
-    for (let jx = x + (reihe % 2 ? 4 : 0); jx < x + w; jx += 8) r(jx, ry - 5 + P, P, 5 - P, DACH.fuge);
-    r(x, ry + P, w, P, ry < mitte ? DACH.licht : DACH.hell);
+    r(x, ry, w, P, D.fuge);
+    const breit = D.gauben ? 6 : 8;                           // Schiefer: kleinere Platten
+    for (let jx = x + (reihe % 2 ? breit / 2 : 0); jx < x + w; jx += breit) r(jx, ry - 5 + P, P, 5 - P, D.fuge);
+    r(x, ry + P, w, P, ry < mitte ? D.licht : D.hell);
   }
   // First (Dachkante in der Mitte) + Traufe unten
-  r(x, mitte - 1, w, 2, DACH.first);
-  r(x, mitte - 1, w, P, DACH.licht);
-  r(x, y + h - 2, w, 2, DACH.first);
+  r(x, mitte - 1, w, 2, D.first);
+  r(x, mitte - 1, w, P, D.licht);
+  r(x, y + h - 2, w, 2, D.rinne);                          // Traufe / Regenrinne
+  if (D.gauben) r(x, y + h - 2, w, P, '#e0a060');
   // Schornstein mit Rauch
   const sx = x + Math.round(w * 0.8), sy = y + Math.round(h * 0.12);
   r(sx - 1, sy - 1, 12, 13, F.umriss);
-  r(sx, sy, 10, 11, '#8a6050');
+  r(sx, sy, 10, 11, D.schornstein);
   for (let by = sy + 3; by < sy + 11; by += 3) r(sx, by, 10, P, '#6b4638');
   r(sx, sy, 10, 2, '#4a3028');
   r(sx + 2, sy + 0.5, 6, 1, '#2a1a16');
@@ -132,8 +154,21 @@ function dachZeichnen(L) {
     const q = ((zeit * 0.5 + i / 3) % 1), g = 2 + q * 3;
     r(sx + 3 + q * 4 - g / 2, sy - 3 - q * 14 - g / 2, g, g, `rgba(235,228,232,${0.55 * (1 - q)})`);
   }
-  // Holzschild mit dem Spielnamen auf dem Dach
-  const name = 'WatchHawks', g = Math.min(12, (L.W - 30) / 10);
+  // Dachgauben (Fenster mit warmem Licht + Blumenkasten) auf der oberen Dachfläche
+  if (D.gauben) for (const fx of [0.16, 0.44]) {
+    const gx = Math.round(x + w * fx), gy = Math.round(y + h * 0.1), gw = 18, gh = 15;
+    r(gx - 1, gy - 1, gw + 2, gh + 2, F.umriss);
+    r(gx, gy, gw, 4, D.first);                             // Gaubendach
+    r(gx, gy, gw, P, D.licht);
+    r(gx, gy + 4, gw, gh - 4, '#e8dcc4');                  // Wand
+    r(gx + 4, gy + 6, gw - 8, 6, '#2a313d');               // Fensterrahmen
+    r(gx + 5, gy + 7, gw - 10, 4, '#ffd77a');              // Licht im Fenster
+    r(gx + gw / 2 - 0.5, gy + 7, 1, 4, '#2a313d');         // Fensterkreuz
+    r(gx + 3, gy + 12, gw - 6, 2, '#8a5a3a');              // Blumenkasten
+    for (let bx = gx + 4; bx < gx + gw - 4; bx += 2.5) r(bx, gy + 11, 1.5, 1.5, (bx - gx) % 5 < 2.5 ? '#e05a6a' : '#f5c542');
+  }
+  // Holzschild auf dem Dach: im Intro der Spielname, beim Umzug der Name der neuen Filiale
+  const name = intro.art === 'intro' ? 'WatchHawks' : filialName(), g = Math.min(12, (L.W - 30) / name.length);
   const bw = Math.ceil(webBreite(name, g) + 16), bh = Math.ceil(g + 12);
   const bx = Math.round(L.mitte - bw / 2), by = Math.round(y + h * 0.62 - bh / 2);
   r(bx - 1, by - 1, bw + 2, bh + 2, F.umriss);

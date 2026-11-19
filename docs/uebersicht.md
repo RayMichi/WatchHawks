@@ -11,6 +11,14 @@ Sicherung der Pixel-Version vor der doppelten Auflösung: Ordner `juwelier-idle-
    - Text 1: Uhrmacher Hawk hat sich nach 40 Jahren zur Ruhe gesetzt und dir den Laden vermacht – eher ein Hinterhof, aber jeder fängt klein an.
    - Text 2: Viel falsch machen kann man nicht, einfach die erste Uhr bauen. Teaser: Wenn es gut läuft, bleibt es nicht der einzige Laden – spätestens dann sieht man sich wieder.
 3. **Ende:** Tippen → Dialog blendet aus, das Dach fliegt in 1,4 s nach oben weg (`dachP` 0 → 1), Ladenschild und Knöpfe erscheinen.
+
+**Lisa beim ersten Umzug** (`lisaStarten('umzug')`, am Ende von `neueFiliale()`): Der neue Laden erscheint mit dem Dach der neuen Filiale, Hintergrund dunkel, Lisa erklärt in 4 Texten das Sternesystem:
+   1. Zweiter Laden, Fußgängerzone ist schon was anderes als der Hinterhof.
+   2. Geld und Upgrades bleiben im alten Laden, aber der Ruf zählt: Ruf-Sterne, je mehr verdient, desto mehr Sterne.
+   3. Jeder Stern = dauerhaft +10 % Preis, bleibt auch beim Ausgeben.
+   4. Ausgeben im Reiter „Ruf“ (Startkapital, schnellere Mitarbeiter); Tipp: nicht zu früh weiterziehen.
+   Danach fliegt das Dach weg. Gespeichert als `lisaUmzug`. Alte Spielstände, die schon umgezogen sind, bekommen den Dialog nicht nachträglich.
+**Dächer pro Filiale** (`DACH_STILE`): Hinterhof = rote Tonziegel; Fußgängerzone (und weitere, bis eigene Dächer kommen) = blaugrauer Schiefer mit kleineren Platten, zwei Dachgauben mit warmem Licht und Blumenkästen, Kupfer-Regenrinne. Das Schild auf dem Dach zeigt im Intro „WatchHawks“, beim Umzug den Namen der neuen Filiale.
 Auch Leertaste/Enter blättern weiter; die Spiel-Tasten 1–4 sind im Intro gesperrt. Gespeichert als `introGesehen` (bleibt). Alte Spielstände ohne das Feld sehen kein Intro, „Spielstand löschen“ zeigt es wieder. Texte: `intro.*` in sprache.js.
 
 ## Kern-Loop (manuell oder per Mitarbeiter)
@@ -54,6 +62,7 @@ Jede Station hält **eine** Uhr. Ist die nächste Station voll, wartet die ferti
 | zuletzt | Zeitpunkt des letzten Speicherns (Offline) | – |
 | profil | Ladenname + Aussehen (Frisur, Haar, Haut, Shirt, Extra) – bleibt | Standard |
 | introGesehen | Intro schon gesehen – bleibt | false |
+| lisaUmzug | Lisa-Dialog zum ersten Umzug gesehen – bleibt | false |
 
 ## Uhrenmodelle (js/daten.js)
 | Modell | Bauen | Polieren | Preis | Vitrine kostet |

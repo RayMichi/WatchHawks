@@ -67,6 +67,8 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [x] Laden-/Ruf-Reiter aufgeräumt: hellblaue Info-Kacheln, Ladenausbau oben und als eine Kachel, Stern-Info in der Laden-Kachel
 - [x] Uhren-Reiter: Knopf der Uhr, die gerade gebaut wird, hellblau statt grau
 - [x] **Intro beim ersten Start:** Dach mit „WatchHawks“-Schild + „Tippen zum Starten“ → Lisa (Porträt von Michi) mit 2 Texten → Dach fliegt weg, Spiel startet; Titel mit großem pulsierendem Start-Knopf, Haus wandert nach dem Tippen in die Mitte
+- [x] **Lisa beim ersten Umzug:** neuer Laden mit eigenem Dach (Schiefer, Gauben, Schild mit Filialname), 4 Texte erklären das Sternesystem
+- [x] Bugfix: Intro-Status ging beim Umzug verloren (wäre nach dem Neuladen nochmal gekommen)
 - [x] Spiel heißt jetzt **WatchHawks**; Versionsverwaltung auf GitHub (RayMichi/WatchHawks), Claude lädt jede Änderung hoch, spielbar über GitHub Pages (läuft, von Michi am Handy getestet)
 
 ## Als Nächstes
@@ -84,8 +86,8 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [ ] Weitere Produkte für freie Vitrinen (Ringe, Ketten, Ohrringe …)
 
 ## Langzeitmotivation
-- [ ] **Dialog mit Lisa beim ersten Umzug (2. Laden):** erklärt das Sternesystem (Ruf-Sterne, Bonus, Ruf-Shop) – im Intro schon angeteasert; Dialog-Box aus dem Intro wiederverwenden
-- [ ] Weitere Mini-Tutorials mit Lisa (z. B. Mitarbeiter, Raritäten) – Michis Idee
+- [ ] Weitere Mini-Tutorials mit Lisa (z. B. Mitarbeiter, Raritäten bei der ersten leistbaren Auktion) – Michis Idee
+- [ ] Eigene Dächer für Einkaufszentrum, Hauptstraße, Prachtstraße (falls dort auch Dialoge kommen)
 - [ ] Evtl. zweiter Gesichtsausdruck für Lisa (lachend/zwinkernd)
 - [ ] Weitere Erfolge (Michi sammelt Ideen)
 

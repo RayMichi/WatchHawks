@@ -30,7 +30,8 @@ function neuesSpiel() {
     tabFrei: {},                        // Reiter, die einmal freigeschaltet wurden (bleibt)
     tabGesehen: {},                     // Reiter, deren Stern weggeklickt wurde (bleibt)
     knopfFrei: {},
-    introGesehen: false,                // Intro (Dach, Lisa) schon gesehen (bleibt)                      // Knöpfe, die beim ersten Spiel nach und nach auftauchen (bleibt)
+    introGesehen: false,                // Intro (Dach, Lisa) schon gesehen (bleibt)
+    lisaUmzug: false,                   // Lisa-Dialog zum ersten Umzug schon gesehen (bleibt)                      // Knöpfe, die beim ersten Spiel nach und nach auftauchen (bleibt)
     sprache: 'de',                      // 'de' oder 'en' (bleibt)
     spielzeit: 0,                       // Sekunden insgesamt gespielt (bleibt)
     besterVerkauf: 0,                   // teuerster einzelner Verkauf (bleibt)
@@ -80,6 +81,7 @@ function laden() {
     if (d.knopfFrei == null && (d.verkauft || 0) >= 3)
       d.knopfFrei = { polBtn: true, packBtn: true, verBtn: true, erfolgeBtn: true, menueBtn: true };
     if (d.introGesehen == null) d.introGesehen = true;   // alte Spielstände: kein Intro mehr
+    if (d.lisaUmzug == null) d.lisaUmzug = (d.filiale || 0) > 0;   // schon umgezogen: Dialog nicht nachholen
     if (d.rundeVerdient == null) d.rundeVerdient = d.verdient || 0;   // alte Spielstände
     spiel = Object.assign(frisch, d, { upg: Object.assign(frisch.upg, d.upg), team: Object.assign(frisch.team, d.team), profil: Object.assign(frisch.profil, d.profil) });
   } catch (e) {}

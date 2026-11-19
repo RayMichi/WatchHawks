@@ -237,7 +237,8 @@ function vipPos() {
 // ===============================================================
 const BLEIBT = ['verkauft', 'verdient', 'klicks', 'schnellBedient', 'erfolgStufe', 'erfolgGemeldet',
                 'filiale', 'sterne', 'gesamtSterne', 'ruf', 'raritaeten', 'vips', 'profil',
-                'gems', 'sprache', 'spielzeit', 'besterVerkauf', 'proModell', 'tabFrei', 'tabGesehen', 'knopfFrei'];
+                'gems', 'sprache', 'spielzeit', 'besterVerkauf', 'proModell', 'tabFrei', 'tabGesehen', 'knopfFrei',
+                'introGesehen', 'lisaUmzug'];
 function neueFiliale() {
   const neu = sterneFuer(spiel.rundeVerdient);
   if (neu < 1) return;
@@ -255,6 +256,7 @@ function neueFiliale() {
   vip = null; kundeWeg = 1;
   meldung(t('m.filiale', { n: filialName(), s: neu }));
   speichern();
+  if (!spiel.lisaUmzug) lisaStarten('umzug');   // erster Umzug: Lisa erklärt die Ruf-Sterne
 }
 
 function rufKaufen(r) {
