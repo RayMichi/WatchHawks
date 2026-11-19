@@ -23,7 +23,7 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [x] Große Zahlen (Mio., Mrd. …) und Offline-Fortschritt
 - [x] Filialen als Prestige mit eigenen Looks (Hinterhof → Fußgängerzone → Einkaufszentrum → Flagship → Luxus-Boutique)
 - [x] Ruf-Sterne + Ruf-Shop (9 Upgrades)
-- [x] Raritäten-Sammlung (10 Stück, Auktion)
+- [x] Raritäten-Sammlung (10 Stück, Auktion) – am 19.11. wieder aus dem Ruf-Reiter entfernt
 - [x] VIP-Kunden mit Trinkgeld / ×5 Preis / Turbo
 - [x] Prestige-Balancing per Zeitraffer-Playtest; Umzugs-Anzeige mit Sterne-Vorschau
 - [x] Vitrinen lassen den Durchgang frei, Durchgang ohne Wand
@@ -72,6 +72,7 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [x] Erfolge-Fenster und Einstellungen liegen über den Meldungen (VIP/Erfolg)
 - [x] Laden-Reiter (und Umzugs-Anzeige) erscheinen, sobald alle 4 Mitarbeiter eingestellt sind **oder** 8.000 € verdient sind
 - [x] Frühphase schneller: Taucheruhr 20 € statt 12 € (Freischalten 80 €), erster Stern bleibt bei 10.000 € → Hinterhof 1. Stern nach ~20 statt ~24–27 min (Schwelle 6.000 € getestet und verworfen, blähte das Spätspiel auf)
+- [x] Ruf-Shop: Raritäten-Auktion raus, dafür 4 „treue Mitarbeiter“ (je 5 ★): der gewählte Mitarbeiter behält beim Umzug seine Stufe
 - [x] Meldungen oben unter der Geld-Anzeige statt unten (verdecken am Handy nicht mehr den VIP bei offenem Upgrade-Menü)
 - [x] Spiel heißt jetzt **WatchHawks**; Versionsverwaltung auf GitHub (RayMichi/WatchHawks), Claude lädt jede Änderung hoch, spielbar über GitHub Pages (läuft, von Michi am Handy getestet)
 
@@ -83,14 +84,14 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [ ] Spätspiel-Inhalt: ab Filiale 2–3 ist der Laden nach ~1 h maximiert → mehr Modelle/Produkte oder Juwelierkette
 - [ ] Verkaufsoffensive (aktive Fähigkeit mit Abklingzeit)
 - [ ] Juwelierkette (zweite Prestige-Ebene)
-- [ ] Raritäten sichtbar im Laden (Sammlungsvitrine)
+- [ ] Michi testet: treue Mitarbeiter für 5 ★ zu billig/teuer? (Verkäuferin auf Stufe 15 mitnehmen ist sehr stark)
 - [ ] Balancing der Mitarbeiter testen (Preise, Tempo) – Michi testet die neue, langsame Verkäuferin
 - [ ] Michi testet: Preis vom 2. Packtisch (4.000 €) okay? Danach ist evtl. Verkaufen/Lager der neue Engpass
 - [ ] **Gems** (lila, existieren schon, bleiben bei Umzug): Quellen festlegen (Erfolge/VIPs/Filialen?) und Cosmetics-Shop bauen
 - [ ] Weitere Produkte für freie Vitrinen (Ringe, Ketten, Ohrringe …)
 
 ## Langzeitmotivation
-- [ ] Weitere Mini-Tutorials mit Lisa (z. B. Mitarbeiter, Raritäten bei der ersten leistbaren Auktion) – Michis Idee
+- [ ] Weitere Mini-Tutorials mit Lisa (z. B. Mitarbeiter, Ruf-Shop) – Michis Idee
 - [ ] Eigene Dächer für Einkaufszentrum, Hauptstraße, Prachtstraße (falls dort auch Dialoge kommen)
 - [ ] Evtl. zweiter Gesichtsausdruck für Lisa (lachend/zwinkernd)
 - [ ] Weitere Erfolge (Michi sammelt Ideen)

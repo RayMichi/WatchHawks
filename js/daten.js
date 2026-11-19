@@ -183,7 +183,10 @@ const RUF_SHOP = [
   { id: 'vipmag',   name: 'VIP-Magnet',            max: 5,  kosten: n => n + 2,
     text: n => BELOHNUNG_TEXT.vip(20 * n), boni: n => ({ vip: 20 * n }) },
   { id: 'nacht',    name: 'Nachtschicht',          max: 4,  kosten: n => 2 * n + 2,
-    text: n => BELOHNUNG_TEXT.offline(2 * n), boni: n => ({ offline: 2 * n }) }
+    text: n => BELOHNUNG_TEXT.offline(2 * n), boni: n => ({ offline: 2 * n }) },
+  // Treue Mitarbeiter: behalten beim Umzug ihre aktuelle Stufe (je 5 Sterne)
+  ...MITARBEITER.map(m => ({ id: 'treu_' + m.id, treu: m.id, icon: m.icon, name: { bau: 'Treuer Uhrmacher', polier: 'Treuer Polierer', pack: 'Treuer Packer', verkauf: 'Treue Verkäuferin' }[m.id], max: 1, kosten: () => 5,
+    text: () => t('rt.treu', { n: nm('mitarbeiter', m.id, m.name), s: spiel.team[m.id] || 0 }) }))
 ];
 
 // ===============================================================

@@ -1,7 +1,7 @@
 # WatchHawks – Variablen & Upgrade-Logik
 
 Spielname: **WatchHawks** (früher „Juwelier Idle“; seit 18.11.2026).
-Stand: 18.11.2026 · Spielen: https://raymichi.github.io/WatchHawks/ · Code: https://github.com/RayMichi/WatchHawks · Claude-Test-Link: https://claude.ai/artifact/HZfx7nf5gTeKaN2UrTenUh
+Stand: 19.11.2026 · Spielen: https://raymichi.github.io/WatchHawks/ · Code: https://github.com/RayMichi/WatchHawks · Claude-Test-Link: https://claude.ai/artifact/HZfx7nf5gTeKaN2UrTenUh
 **Ablauf bei Änderungen:** Claude testet, schreibt in Michis Ordner, lädt zu GitHub hoch (Pages aktualisiert sich nach 1–2 min) und aktualisiert den Claude-Link. Spielstände liegen nur im Browser des jeweiligen Geräts (localStorage `juwelierIdle-v2`), jede Adresse hat ihren eigenen. Safari löscht sie nach ~7 Tagen ohne Besuch, außer das Spiel liegt auf dem Home-Bildschirm.
 Sicherung der Pixel-Version vor der doppelten Auflösung: Ordner `juwelier-idle-versionen/pixel-stil` · Link: https://claude.ai/artifact/BAQu1ubJX6CXpqWYi2khqE
 
@@ -183,9 +183,12 @@ Im Breitbild wirken kleine Läden kleiner (Maßstab vom größten Laden), am Han
 | Motivierte Mitarbeiter | Mitarbeiter 10 % schneller je Stufe | 2, 4, 6 … | 5 |
 | VIP-Magnet | VIPs 20 % häufiger je Stufe | 2, 3, 4 … | 5 |
 | Nachtschicht | +2 h Offline-Zeit je Stufe | 2, 4, 6 … | 4 |
+| Treuer Uhrmacher / Treuer Polierer / Treuer Packer / Treue Verkäuferin | dieser Mitarbeiter behält beim Umzug seine aktuelle Stufe | je 5 | je 1 |
 
-## Raritäten (Reiter „Ruf“ → Auktion)
-Zufällige seltene Uhr, keine doppelt. Preis: 3 ★ + 2 ★ pro schon besessener Rarität.
+**Treue Mitarbeiter** (seit 19.11., `treu_bau`, `treu_polier`, `treu_pack`, `treu_verkauf`): 4 einzelne Kacheln mit dem Porträt des Mitarbeiters, jede kostet 5 ★, man kann eine, mehrere oder alle kaufen. Beim Umzug wird die Stufe des Mitarbeiters gemerkt und im neuen Laden wieder gesetzt (höchstens, nie niedriger als Stammpersonal). Die Stufe wächst also mit: Was man im Laden hochlevelt, nimmt man in den nächsten mit. Ist ein treuer Mitarbeiter mindestens Stufe 1, ist der Store Manager im neuen Laden sofort frei (sonst könnte man ihn nicht weiter aufrüsten). Die Kachel zeigt die aktuelle Stufe („behält beim Umzug die Stufe (jetzt 7)“).
+
+## Raritäten (seit 19.11. nicht mehr kaufbar)
+Die Auktion ist aus dem Ruf-Reiter entfernt (Michi), ebenso die Sammlungsliste und die Zeile in der Statistik. Der Code (`RARITAETEN`, `raritaetErsteigern`) ist noch da; schon ersteigerte Raritäten in alten Spielständen wirken weiter. Früher: zufällige seltene Uhr, keine doppelt, Preis 3 ★ + 2 ★ pro schon besessener Rarität.
 | Rarität | Bonus |
 |---|---|
 | Taschenuhr von 1890 | +10 % Verkaufspreis |
@@ -295,7 +298,7 @@ Reihenfolge der Reiter: Ausrüstung, Uhren, Manager, Laden, Ruf (Freischalten si
 **Info-Kacheln** (`infoKachel: true` → Klasse `infokarte`): hellblau, flach, fette Schrift, kein Knopf – zeigen nur Infos.
 - **Laden-Reiter** (Reihenfolge): Info-Kachel aktueller Laden („Filiale 2 · hier verdient: 25.000 € · nächster ★ ab 40.000 €“) → **Ladenausbau** als eine Kachel (aktueller Stand → nächster Ausbau mit Preis; sonst „mehr Platz in der nächsten Filiale“ bzw. „voll ausgebaut“) → Neue Filiale.
 - **Uhren-Reiter:** Der Knopf der Uhr, die gerade gebaut wird („Wird gebaut“), ist hellblau wie die Info-Kacheln (Klasse `gewaehlt`), nicht grau. Nur der Knopf, nicht die ganze Kachel. Grau bleibt für „geht gerade nicht“ (zu teuer, keine Vitrine frei).
-- **Ruf-Reiter:** oben Info-Kachel „X Ruf-Sterne verdient · Bonus: +Y % Verkaufspreis“ (aktuelle Sterne stehen oben links), danach Ruf-Shop und Auktion. Erklärungen kommen später über Mini-Tutorials.
+- **Ruf-Reiter:** oben Info-Kachel „X Ruf-Sterne verdient · Bonus: +Y % Verkaufspreis“ (aktuelle Sterne stehen oben links), danach der Ruf-Shop (zuletzt die 4 treuen Mitarbeiter). Erklärungen kommen später über Mini-Tutorials.
 
 ## Grafikstil (js/grafik.js)
 **Pixel-Art in doppelter Auflösung:** Jede Spieleinheit besteht jetzt aus 2×2 feinen Pixeln (`S = 2`). Alle Sprites (Figuren, Uhren, Pflanzen, Schrift, auch die Menü-Symbole) werden beim Zeichnen mit **Scale2x** verdoppelt – dadurch werden schräge Kanten runder, ohne dass der Pixel-Look verloren geht. Figuren, Uhren und Gegenstände haben eine 2 feine Pixel dicke Kontur mit runden Ecken (ähnlich kräftig wie die Tische); jedes Sprite wird dafür einmal auf eine kleine Leinwand gezeichnet und zwischengespeichert. Möbel haben feine Kanten, Dielen- und Fugenlinien sind dünner. Die Figuren haben zusätzlich Lichtpunkte in den Augen und Glanz im Haar. **Figuren (Stil „Knuddel“, seit 18.11.):** runder Riesenkopf, große Kulleraugen mit Lichtpunkt, Mini-Körper, keine Wangen; 13 × 16, Haar in 3 Tönen (`ton()` hellt/dunkelt ab). Frisuren Kurz, Lang, Dutt, Stacheln, Glatze; Extras Brille (helles Gestell), Mütze, Zylinder (ragt über den Kopf, `dy`). Die Füße bleiben an der alten Bezugsposition (`figur()` zeichnet bei x − 2,5 / y − 5). **Uhren (Stil „Ikone 10:10“):** 10 × 10, Zeiger auf 10:10, Stundenmarken, Krone, Glanz am Gehäuse; überall gleich groß. Lagerfächer 11 × 11 (Regal startet weiter links), Vitrinen 13 × 16. Baustufen: Armband → Gehäuse → Zifferblatt → Zeiger. Theke steht mind. 36 Spielpixel unter der Verkaufs-Rückwand, damit die großen Köpfe nicht an die Vitrinen stoßen.

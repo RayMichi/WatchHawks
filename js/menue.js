@@ -52,18 +52,9 @@ function eintraege() {
       info: t('ruf.bonus', { p: spiel.gesamtSterne * STERN_BONUS }) }];
     for (const r of RUF_SHOP) {
       const n = spiel.ruf[r.id] || 0, max = n >= r.max, p = r.kosten(n);
-      liste.push({ key: 'ruf-' + r.id, icon: 'stern', titel: nm('ruf', r.id, r.name),
+      liste.push({ key: 'ruf-' + r.id, icon: r.icon || 'stern', titel: nm('ruf', r.id, r.name),
         info: (r.max > 1 ? `${n}/${r.max} · ` : '') + (n ? r.text(n) + (max ? '' : ` → ${r.text(n + 1)}`) : r.text(1)),
         knopf: max ? (r.max > 1 ? t('max') : t('ruf.gekauft')) : `${p} ★`, aus: max || spiel.sterne < p, tun: () => rufKaufen(r) });
-    }
-    const frei = RARITAETEN.length - spiel.raritaeten.length;
-    liste.push({ key: 'rar-kauf', icon: 'raritaet', titel: t('ruf.auktion'),
-      info: `${spiel.raritaeten.length}/${RARITAETEN.length} · ` + (frei ? t('ruf.auktionInfo') : t('ruf.komplettInfo')),
-      knopf: frei ? t('ruf.bieten', { n: raritaetPreis() }) : t('ruf.komplett'), aus: !frei || spiel.sterne < raritaetPreis(), tun: raritaetErsteigern });
-    for (const r of RARITAETEN) {
-      const hat = spiel.raritaeten.includes(r.id);
-      liste.push({ key: 'rar-' + r.id, icon: hat ? 'raritaet' : 'frage', titel: hat ? nm('raritaeten', r.id, r.name) : '???',
-                   info: hat ? boniText(r.boni) : t('ruf.unbekannt') });
     }
     return liste;
   }
@@ -472,7 +463,6 @@ function statistikAktualisieren() {
     ['stat.prestige', [
       ['stat.aktFiliale', filialName()], ['stat.filialen', zahl(spiel.filiale)],
       ['stat.sterne', `${zahl(spiel.sterne)} / ${zahl(spiel.gesamtSterne)}`],
-      ['stat.raritaeten', `${spiel.raritaeten.length} / ${RARITAETEN.length}`],
       ['stat.erfolge', `${stufen} / ${ERFOLG_STUFEN_GESAMT}`], ['stat.gems', zahl(spiel.gems)]]],
     ['stat.zeit', [['stat.spielzeit', zeitText(spiel.spielzeit)], ['stat.rundeZeit', zeitText(spiel.rundeZeit)]]]
   ];

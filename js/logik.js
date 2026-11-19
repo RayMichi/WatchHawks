@@ -244,6 +244,9 @@ function neueFiliale() {
   if (neu < 1) return;
   const behalten = {};
   for (const k of BLEIBT) behalten[k] = spiel[k];
+  // treue Mitarbeiter merken sich ihre Stufe
+  const treu = {};
+  for (const m of MITARBEITER) if (spiel.ruf['treu_' + m.id]) treu[m.id] = spiel.team[m.id] || 0;
   spiel = Object.assign(neuesSpiel(), behalten);
   spiel.filiale++;
   spiel.sterne += neu;
@@ -252,6 +255,7 @@ function neueFiliale() {
   spiel.geld = STARTKAPITAL[spiel.ruf.kapital || 0];
   if (spiel.ruf.kontakte || spiel.ruf.stamm) spiel.upg.manager = 1;
   if (spiel.ruf.stamm) for (const id in spiel.team) spiel.team[id] = 1;
+  for (const id in treu) if (treu[id] > 0) { spiel.team[id] = Math.max(spiel.team[id], treu[id]); spiel.upg.manager = 1; }
   for (const k in takt) takt[k] = 0;
   vip = null; kundeWeg = 1;
   meldung(t('m.filiale', { n: filialName(), s: neu }));
