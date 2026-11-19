@@ -71,6 +71,7 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [x] Bugfix: Intro-Status ging beim Umzug verloren (wäre nach dem Neuladen nochmal gekommen)
 - [x] Erfolge-Fenster und Einstellungen liegen über den Meldungen (VIP/Erfolg)
 - [x] Laden-Reiter (und Umzugs-Anzeige) erscheinen, sobald alle 4 Mitarbeiter eingestellt sind, statt ab 8.000 €
+- [x] Meldungen oben unter der Geld-Anzeige statt unten (verdecken am Handy nicht mehr den VIP bei offenem Upgrade-Menü)
 - [x] Spiel heißt jetzt **WatchHawks**; Versionsverwaltung auf GitHub (RayMichi/WatchHawks), Claude lädt jede Änderung hoch, spielbar über GitHub Pages (läuft, von Michi am Handy getestet)
 
 ## Als Nächstes

@@ -292,7 +292,7 @@ Bauen = Hammer · Polieren = Funkeln · Verpacken = Geschenkpaket · Verkaufen =
 `person(haar, shirt, körperzeilen, extraFarben)` baut die Porträts, `punkte` setzt einzelne feine Pixel (Lichtpunkte).
 
 ## Meldungen
-Einblendungen (Erfolg erreicht, VIP da, Umzug …) erscheinen unten direkt über den Aktions-Knöpfen und gleiten von unten rein. Mehrere Meldungen kommen nacheinander. Die Position wird laufend an den Knöpfen ausgerichtet (`meldungAusrichten()`): Öffnet man das Upgrade-Menü, rutscht die Meldung mit den Knöpfen nach oben und verdeckt das Menü nicht. Das Erfolge-Fenster und die Einstellungen liegen über den Meldungen (z-index 35 statt 20, Meldungen 30), Meldungen stören dort also nicht.
+Einblendungen (Erfolg erreicht, VIP da, Umzug …) erscheinen **oben** direkt unter der Geld-/Umzugs-Anzeige und gleiten von oben rein (seit 19.11.; vorher unten über den Knöpfen – am Handy hat das bei offenem Upgrade-Menü den VIP verdeckt). Mehrere Meldungen kommen nacheinander. `meldungAusrichten()` setzt die Höhe laufend unter die Anzeige oben links und mittig über die Knöpfe (im Breitbild mit offenem Menü also mittig über dem Laden). Das Erfolge-Fenster und die Einstellungen liegen über den Meldungen (z-index 35 statt 20, Meldungen 30), Meldungen stören dort also nicht.
 
 ## Aktions-Knöpfe
 Feste Größe, passend für den längsten Text (12 Zeichen, z. B. „Packing 4.3s“): Breitbild 180 × 54 px, Tablet 152 × 76 px, Handy ¼ Breite × 72 px (Platz für 2 Zeilen).

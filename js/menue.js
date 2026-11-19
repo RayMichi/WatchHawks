@@ -346,8 +346,10 @@ function meldung(text, ms = 3200) {
 }
 // Meldung sitzt immer direkt über den Aktions-Knöpfen – auch wenn die beim offenen Upgrade-Menü hochrutschen
 function meldungAusrichten() {
+  // oben unter der Geld-/Umzugs-Anzeige, waagerecht mittig über den Knöpfen (rutscht mit, wenn das Menü rechts offen ist)
   const m = $('meldung'), u = $('unten').getBoundingClientRect();
-  m.style.bottom = Math.round(window.innerHeight - u.top + 10) + 'px';
+  const o = $('oben').querySelector('.links').getBoundingClientRect();
+  m.style.top = Math.round(o.bottom + 8) + 'px';
   m.style.left = Math.round(u.left + u.width / 2) + 'px';
   if (m.classList.contains('sichtbar') || meldungLaeuft) requestAnimationFrame(meldungAusrichten);
 }
