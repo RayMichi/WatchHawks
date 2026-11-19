@@ -66,7 +66,7 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [x] VIP-Boost-Anzeige deutlich kleiner („Preis ×5 · 20 s“)
 - [x] Laden-/Ruf-Reiter aufgeräumt: hellblaue Info-Kacheln, Ladenausbau oben und als eine Kachel, Stern-Info in der Laden-Kachel
 - [x] Uhren-Reiter: Knopf der Uhr, die gerade gebaut wird, hellblau statt grau
-- [x] **Intro beim ersten Start:** Dach mit „WatchHawks“-Schild + „Tippen zum Starten“ → Lisa (Porträt von Michi) mit 2 Texten → Dach fliegt weg, Spiel startet
+- [x] **Intro beim ersten Start:** Dach mit „WatchHawks“-Schild + „Tippen zum Starten“ → Lisa (Porträt von Michi) mit 2 Texten → Dach fliegt weg, Spiel startet; Titel mit großem pulsierendem Start-Knopf, Haus wandert nach dem Tippen in die Mitte
 - [x] Spiel heißt jetzt **WatchHawks**; Versionsverwaltung auf GitHub (RayMichi/WatchHawks), Claude lädt jede Änderung hoch, spielbar über GitHub Pages (läuft, von Michi am Handy getestet)
 
 ## Als Nächstes

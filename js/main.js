@@ -17,7 +17,7 @@ function schritt() {
   introUpdate(Math.min(dt, 0.1));
 
   if (!cv.width) groesse();
-  if (cv.width) { zeichnen(); }
+  if (cv.width) { const v = introVersatz(); loy += v; zeichnen(); loy -= v; }   // Intro: Haus verschoben
   knoepfeAktualisieren();
   seitMenue += dt;
   if (seitMenue > 0.15) { menueAktualisieren(); erfolgePruefen(); erfolgeAktualisieren(); seitMenue = 0; }

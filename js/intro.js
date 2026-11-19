@@ -5,13 +5,14 @@
 //     Ende: Dach fliegt nach oben weg, das Spiel geht los
 // ===============================================================
 let dachP = 1;                       // 0 = Dach zu, 1 = Dach weg (normales Spiel)
-const intro = { phase: null, nr: 0, voll: '', zeichen: 0, timer: null };
+const intro = { phase: null, nr: 0, voll: '', zeichen: 0, timer: null, wander: 0 };
+const WANDER_DAUER = 0.8;            // Sekunden: Haus wandert vom Titel-Platz in die Mitte
 const DACH_DAUER = 1.4;              // Sekunden, bis das Dach weg ist
 const INTRO_TEXTE = ['intro.text1', 'intro.text2'];
 
 function introStarten() {
   dachP = 0;
-  intro.phase = 'titel'; intro.nr = 0;
+  intro.phase = 'titel'; intro.nr = 0; intro.wander = 0;
   document.body.classList.add('intro');
   const el = $('intro');
   el.hidden = false;
@@ -66,7 +67,18 @@ function textFertig() {
   $('intro').classList.add('fertig');
 }
 
+// Titel: Haus sitzt weit oben (Platz für „Tippen zum Starten“). Nach dem Tippen wandert es in die Mitte.
+// Liefert den Versatz in Spieleinheiten, der beim Zeichnen auf loy addiert wird.
+function introVersatz() {
+  if (!intro.phase || !cv.height) return 0;
+  const ziel = cv.height * 0.09 / U + 4;                   // Dachkante bei ca. 9 % der Höhe
+  const voll = Math.min(0, ziel - loy);
+  const w = intro.wander, f = 1 - w * w * (3 - 2 * w);
+  return Math.round(voll * f * S) / S;
+}
+
 function introUpdate(dt) {
+  if (intro.phase && intro.phase !== 'titel') intro.wander = Math.min(1, intro.wander + dt / WANDER_DAUER);
   if (intro.phase !== 'dach') return;
   dachP = Math.min(1, dachP + dt / DACH_DAUER);
   if (dachP >= 1) introEnde();
