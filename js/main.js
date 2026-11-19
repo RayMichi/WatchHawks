@@ -14,6 +14,7 @@ function schritt() {
   mitarbeiterArbeiten(dt * turbo);
   packenWeiter(dt * turbo);
   effekteUpdaten(Math.min(dt, 1));
+  introUpdate(Math.min(dt, 0.1));
 
   if (!cv.width) groesse();
   if (cv.width) { zeichnen(); }
@@ -25,6 +26,7 @@ function schritt() {
 laden();
 spracheSetzen(spiel.sprache);
 offlineBerechnen();
+if (!spiel.introGesehen) introStarten();
 groesse();
 schritt();
 setInterval(schritt, 33);

@@ -5,6 +5,14 @@ Stand: 18.11.2026 · Spielen: https://raymichi.github.io/WatchHawks/ · Code: ht
 **Ablauf bei Änderungen:** Claude testet, schreibt in Michis Ordner, lädt zu GitHub hoch (Pages aktualisiert sich nach 1–2 min) und aktualisiert den Claude-Link. Spielstände liegen nur im Browser des jeweiligen Geräts (localStorage `juwelierIdle-v2`), jede Adresse hat ihren eigenen. Safari löscht sie nach ~7 Tagen ohne Besuch, außer das Spiel liegt auf dem Home-Bildschirm.
 Sicherung der Pixel-Version vor der doppelten Auflösung: Ordner `juwelier-idle-versionen/pixel-stil` · Link: https://claude.ai/artifact/BAQu1ubJX6CXpqWYi2khqE
 
+## Intro (nur beim allerersten Start, js/intro.js)
+1. **Titel:** Der Laden ist von oben mit einem Ziegeldach abgedeckt (Schornstein mit Rauch), darauf ein Holzschild „WatchHawks“. Unten blinkt „Tippen zum Starten“. Anzeigen und Knöpfe sind ausgeblendet, Raumschilder und Sprechblasen liegen unter dem Dach.
+2. **Dialog:** Tippen → Hintergrund dunkelt ab, **Lisa** (Porträt `assets/grafik/lisa.png`, von Michi, gespiegelt, schaut zur Mitte) gleitet von rechts rein und steht am rechten Rand auf der Textbox. Namensschild „Lisa“, Text tippt sich Buchstabe für Buchstabe ein (Tippen zeigt ihn sofort ganz), ▼ zeigt „weiter“. Die Box ist so hoch wie der längste Text, damit Lisa nicht springt.
+   - Text 1: Uhrmacher Hawk hat sich nach 40 Jahren zur Ruhe gesetzt und dir den Laden vermacht – eher ein Hinterhof, aber jeder fängt klein an.
+   - Text 2: Viel falsch machen kann man nicht, einfach die erste Uhr bauen; Lisa ist in der Nähe.
+3. **Ende:** Tippen → Dialog blendet aus, das Dach fliegt in 1,4 s nach oben weg (`dachP` 0 → 1), Ladenschild und Knöpfe erscheinen.
+Auch Leertaste/Enter blättern weiter; die Spiel-Tasten 1–4 sind im Intro gesperrt. Gespeichert als `introGesehen` (bleibt). Alte Spielstände ohne das Feld sehen kein Intro, „Spielstand löschen“ zeigt es wieder. Texte: `intro.*` in sprache.js.
+
 ## Kern-Loop (manuell oder per Mitarbeiter)
 1. **Werkstatt – BAUEN:** Uhr wird zusammengebaut (Armband → Gehäuse → Zifferblatt → Zeiger).
 2. **Polierraum – POLIEREN:** Dreckflecken verschwinden.
@@ -45,6 +53,7 @@ Jede Station hält **eine** Uhr. Ist die nächste Station voll, wartet die ferti
 | boost | aktiver VIP-Bonus | leer |
 | zuletzt | Zeitpunkt des letzten Speicherns (Offline) | – |
 | profil | Ladenname + Aussehen (Frisur, Haar, Haut, Shirt, Extra) – bleibt | Standard |
+| introGesehen | Intro schon gesehen – bleibt | false |
 
 ## Uhrenmodelle (js/daten.js)
 | Modell | Bauen | Polieren | Preis | Vitrine kostet |

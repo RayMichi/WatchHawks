@@ -29,7 +29,8 @@ function neuesSpiel() {
     gems: 0,                            // lila Gems: seltene Währung für Cosmetics (bleibt)
     tabFrei: {},                        // Reiter, die einmal freigeschaltet wurden (bleibt)
     tabGesehen: {},                     // Reiter, deren Stern weggeklickt wurde (bleibt)
-    knopfFrei: {},                      // Knöpfe, die beim ersten Spiel nach und nach auftauchen (bleibt)
+    knopfFrei: {},
+    introGesehen: false,                // Intro (Dach, Lisa) schon gesehen (bleibt)                      // Knöpfe, die beim ersten Spiel nach und nach auftauchen (bleibt)
     sprache: 'de',                      // 'de' oder 'en' (bleibt)
     spielzeit: 0,                       // Sekunden insgesamt gespielt (bleibt)
     besterVerkauf: 0,                   // teuerster einzelner Verkauf (bleibt)
@@ -78,6 +79,7 @@ function laden() {
     // alte Spielstände: alle Knöpfe direkt da (kein Aufploppen)
     if (d.knopfFrei == null && (d.verkauft || 0) >= 3)
       d.knopfFrei = { polBtn: true, packBtn: true, verBtn: true, erfolgeBtn: true, menueBtn: true };
+    if (d.introGesehen == null) d.introGesehen = true;   // alte Spielstände: kein Intro mehr
     if (d.rundeVerdient == null) d.rundeVerdient = d.verdient || 0;   // alte Spielstände
     spiel = Object.assign(frisch, d, { upg: Object.assign(frisch.upg, d.upg), team: Object.assign(frisch.team, d.team), profil: Object.assign(frisch.profil, d.profil) });
   } catch (e) {}

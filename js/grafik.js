@@ -601,7 +601,7 @@ function zeichnen() {
   }
 
   // Großes Ladenschild über dem Laden: eigener Name + Filiale
-  ladenSchild(L);
+  if (dachP >= 1) ladenSchild(L); else dachZeichnen(L);   // Intro: Dach über dem Laden
   // Schwebendes „+3 €“ über der Theke
   for (const t of texte) {
     const a = 1 - t.t;
@@ -612,7 +612,7 @@ function zeichnen() {
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(off, 0, 0, off.width, off.height, 0, 0, off.width * U / S, off.height * U / S);
   flushTexte();
-  blasenZeichnen();   // Sprechblasen ganz oben
+  if (dachP >= 1) blasenZeichnen(); else blasen = [];   // Sprechblasen ganz oben (nicht unter dem Dach)
 
   for (const f of funken) {
     ctx.fillStyle = `rgba(255,246,200,${1 - f.t / 0.5})`;

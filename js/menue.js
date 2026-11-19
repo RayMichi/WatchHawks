@@ -227,7 +227,7 @@ $('packBtn').addEventListener('click', selbst(verpacken));
 $('verBtn').addEventListener('click', selbst(verkaufen));
 const fensterZu = () => { for (const id of ['erfolgeFenster', 'einstFenster']) $(id).classList.remove('offen'); };
 document.addEventListener('keydown', e => {
-  if (e.repeat) return;
+  if (e.repeat || document.body.classList.contains('intro')) return;
   if (e.key === '1') selbst(bauen)();
   if (e.key === '2') selbst(polieren)();
   if (e.key === '3') selbst(verpacken)();
@@ -498,6 +498,7 @@ $('resetBtn').addEventListener('click', () => {
   spiel = neuesSpiel();
   spiel.sprache = sprache;
   fensterZu();
+  introStarten();   // frischer Spielstand = Intro wie beim ersten Start
 });
 
 // Sprache wechseln: alle festen Texte (data-t …) neu setzen, Listen neu bauen
