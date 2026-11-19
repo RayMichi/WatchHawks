@@ -40,7 +40,8 @@ const UPGRADES = {
 };
 // Packtische: ab der 3. Filiale (Einkaufszentrum) kann ein zweiter dazugekauft werden
 const TISCH2_AB = 2;
-// Reiter Laden erscheint, sobald alle vier Mitarbeiter eingestellt sind (mind. Stufe 1)
+// Reiter Laden erscheint, sobald alle vier Mitarbeiter eingestellt sind (mind. Stufe 1) ODER 8.000 € in der Filiale verdient sind
+const LADEN_TAB_AB = 8000;
 const alleMitarbeiter = (team = spiel.team) => ['bau', 'polier', 'pack', 'verkauf'].every(id => (team[id] || 0) >= 1);
 const packTische = () => 1 + (spiel.upg.tisch2 && spiel.filiale >= TISCH2_AB ? 1 : 0);
 const freierTisch = () => { for (let i = 0; i < packTische(); i++) if (!spiel.packs[i]) return i; return -1; };

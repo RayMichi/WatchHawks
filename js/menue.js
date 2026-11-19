@@ -192,7 +192,7 @@ function knoepfeFreischalten() {
 // (Manager hängt am Upgrade und verschwindet nach dem Umzug wieder, die anderen bleiben frei.)
 const REITER_FREI = {
   uhren: () => Object.values(spiel.upg).some(x => x > 0),
-  laden: () => alleMitarbeiter(),
+  laden: () => alleMitarbeiter() || spiel.rundeVerdient >= LADEN_TAB_AB,
   ruf:   () => spiel.filiale > 0
 };
 const reiterSichtbar = name => name === 'ausruestung' || (name === 'manager' ? !!spiel.upg.manager : !!spiel.tabFrei[name]);

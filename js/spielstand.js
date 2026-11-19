@@ -72,7 +72,7 @@ function laden() {
     // alte Spielstände: schon bekannte Reiter ohne Stern
     if (d.tabGesehen == null) {
       const alt = (d.upg && Object.values(d.upg).some(x => x > 0)) || d.filiale > 0;
-      d.tabFrei = { uhren: !!alt, laden: d.filiale > 0 || alleMitarbeiter(d.team || {}), ruf: d.filiale > 0 };
+      d.tabFrei = { uhren: !!alt, laden: d.filiale > 0 || alleMitarbeiter(d.team || {}) || (d.rundeVerdient || 0) >= LADEN_TAB_AB, ruf: d.filiale > 0 };
       d.tabGesehen = { uhren: d.tabFrei.uhren, laden: d.tabFrei.laden, ruf: d.tabFrei.ruf,
                        manager: !!(d.managerGesehen || (d.upg && d.upg.manager) || d.filiale) };
     }
