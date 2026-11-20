@@ -44,7 +44,7 @@ Alle 5 Filialen stehen in der Stadt (auch wenn man vorher nicht alle erreicht ha
 - **Spezialisierung** ab Stufe 10, 25, 50 (je eine Wahl, gilt bis zum Reset): **Umsatz** €×1,5 · **Prestige** ★×2 · **Tempo** €×1,25 und ★×1,25 (schnellere Runden). Offene Wahl = „!“-Blase über der Filiale und lila Kachel oben im Reiter Filialen.
 
 ### Sterne
-- Jede Filiale füllt ihren **Sternentopf**: 1 ★ alle 15 min (× Prestige/Tempo, × Trend, × Presseabteilung), Platz 3 (+2 je Tresor). Blase „★n“ über dem Gebäude.
+- Jede Filiale füllt ihren **Sternentopf** (seit 20.11. Variante V2): bei Stufe 1 Hinterhof 1 ★ / 60 min, Fußgängerzone 40, Einkaufszentrum 25, Hauptstraße 15, Prachtstraße 10 min; **jede Ausbaustufe macht die Sterne 3 % schneller** (`K.sternZeit`, `K.sternProStufe`), dazu × Prestige/Tempo, × Trend, × Presseabteilung. Kleine Filialen = Geld, große = Sterne – wer Sterne will, muss die teuren Läden ausbauen. Platz 3 (+2 je Tresor). Blase „★n“ über dem Gebäude.
 - **Knopf unten „Sterne (n)“** sammelt alle Töpfe ein (pulsiert, wenn etwas da ist). Antippen eines Gebäudes sammelt nur dessen Topf.
 - **Sterne-Upgrades** (Reiter „Sterne“, pro Filiale): **Filialleiter** 15 ★ (sammelt automatisch, „L“-Abzeichen) · **Tresor** 5 × 2^n ★ (Topf +2) · **Turbo** 10 × 3^n ★ (Filiale ×2).
 - **Zentrale** (Reiter „Zentrale“, ★, wirkt auf alle): Marketing (+50 % €, 20 × 2^n, max 10) · Presseabteilung (Sterne +25 % schneller, 15 × 2^n, max 10) · Fuhrpark (Limos 25 % häufiger, Belohnung +50 %, 10 × 2^n, max 5) · Werbeagentur (Werbung: Pause −15 %, +15 s, 10 × 2^n, max 5). Die Baustelle wird zur Konzernzentrale: ab 1 Stufe Rohbau, ab 8 Glasfassade, ab 20 Gold mit Hubschrauber-Landeplatz (vorher Kran).
@@ -72,7 +72,7 @@ Erste Fassung (alle gleich teuer, Faktor 1,15, Meilensteine ab 10, Umsatz ×2): 
 
 Mit Sternen, Spezialisierung, Trends und Turbo (vollständiger Bot) deutlich schneller: nach 1 h ca. 100 Mio. €/s, nach 3 h ca. 1–2 Mrd. €/s.
 
-**Sterne-Varianten (durchgerechnet 20.11., noch nicht entschieden)**, 3 h, Bot sammelt alle 5 min ein:
+**Sterne-Varianten (durchgerechnet 20.11., gewählt: V2b mit +3 % je Stufe)**, 3 h, Bot sammelt alle 5 min ein:
 
 | Variante | ★ nach 1 h | ★ nach 3 h | Anteil Hinterhof → Prachtstraße |
 |---|---|---|---|

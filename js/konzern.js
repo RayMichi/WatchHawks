@@ -20,7 +20,8 @@ const K = {
   meilensteine: [25, 50, 100, 150, 200, 300, 400],       // pro Filiale: Runde doppelt so schnell
   konzernMeilensteine: [25, 50, 100, 200, 300, 400],      // alle Filialen: alles ×2
   umsatzFaktor: 1.5,                    // Spezialisierung Umsatz
-  sternZeit:  900,                      // Sekunden pro Stern und Filiale (Grundwert)
+  sternZeit:  [3600, 2400, 1500, 900, 600],   // Sekunden pro Stern bei Stufe 1 (große Filialen = mehr Sterne)
+  sternProStufe: 0.03,                  // jede Ausbaustufe: Sterne 3 % schneller
   topf:       3, tresorPlus: 2,         // Sternentopf: Platz + pro Tresor-Stufe
   spezStufen: [10, 25, 50],             // ab diesen Stufen gibt es eine Spezialisierung
   trendDauer: 600, trendFaktor: 3,
@@ -69,7 +70,7 @@ function kRunde(i) {    // Sekunden pro Runde (nur Optik/Rhythmus – das Geld p
 }
 function kSternRate(i) { // Sterne pro Sekunde
   const kz = spiel.konzern, f = kz.f[i];
-  let r = 1 / K.sternZeit * Math.pow(2, kAnzahl(f.spez, 'prestige')) * Math.pow(1.25, kAnzahl(f.spez, 'tempo'));
+  let r = 1 / K.sternZeit[i] * (1 + K.sternProStufe * (f.stufe - 1)) * Math.pow(2, kAnzahl(f.spez, 'prestige')) * Math.pow(1.25, kAnzahl(f.spez, 'tempo'));
   if (kz.trend.stern === i) r *= K.trendFaktor;
   return r * (1 + 0.25 * kz.zentrale.jaeger);
 }
