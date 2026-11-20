@@ -176,6 +176,14 @@ Lage-Bonus pro Filiale (LAGE_BONUS) ist auf 1,0 = aus gestellt – siehe Playtes
 | 4 | Hauptstraße (EN: Flagship Store) | 214 × 138 | 8 | 8 | dunkel mit Gold, Marmor, roter Teppich, Kronleuchter |
 | 5+ | Prachtstraße (Nr. 2, 3 …, EN: Luxury Boutique) | 214 × 138 | 8 | 8 | Samt-Lila und Gold |
 
+**Umgebung pro Filiale** (seit 20.11., `UMGEBUNG` in grafik.js, gleicher Stil und gleiche Farben wie die Stadtansicht; alles von oben, Nachbarhäuser als Dächer):
+- Hinterhof: dunkler Kopfsteinhof, Nachbarhäuser dicht links/rechts/hinten, Mülltonnen, Kisten, Pfütze, Unkraut; Straße, gegenüber weitere Häuser.
+- Fußgängerzone: helles Pflaster überall, **keine Straße**; Bänke, Blumenkübel, Bäume, laufende Passanten, Nachbarläden.
+- Einkaufszentrum: der Laden sitzt im Center (Flachdächer mit Oberlichtern daneben/dahinter), Gehweg mit Einkaufswagen, davor Parkplatz mit Stellplätzen und Autos statt Straße.
+- Hauptstraße: Steinplatten, roter Teppich mit Messingpfosten und Kordeln, Laternen, dunkle Häuser mit goldenem First; Straße.
+- Prachtstraße: Rasen, Kiesweg zur Tür, Hecke, Springbrunnen und Bäume links/rechts, Allee mit Laternen an der Straße, gegenüber Kiesweg und lila Villen.
+Straßen wie in der Stadt (`strasse()`): grauer Asphalt, gelbe Mittellinie, Zebrastreifen vor der Tür, Autos fahren in beide Richtungen. Häuser werden mit `hausBlock()`/`hausReihe()`/`dachHaus()` in Reihen gesetzt.
+
 **Vier Räume für vier Schritte:** Werkstatt und Polierraum oben (schmale Nebenräume), unten links das **Lager** (Lagerregal + Packtische), rechts der **Verkauf** (Vitrinen, Theke, Teppich). Lager und Verkauf sind nicht durch eine Mauer getrennt, sondern durch eigenen Boden (Platten statt Teppich), eigene Rückwand (Bretter) und eine Kante am Übergang. Das Lager ist 58 Spielpixel breit, Farben passen zu jeder Filiale (`lager`, `lagerWand` … im Thema). Alle Möbel- und Figurenpositionen werden pro Filiale berechnet (layout() in js/grafik.js).
 Ladenausbau und Lagerregal gehen nur bis zur Grenze der Filiale. Im Hinterhof gibt es also nur Quarz- und Taucheruhr.
 Im Breitbild wirken kleine Läden kleiner (Maßstab vom größten Laden), am Handy füllt jeder Laden den Platz.

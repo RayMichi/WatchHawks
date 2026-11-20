@@ -431,23 +431,198 @@ function laterne(x, y) {
   sprite(['ll', 'ww', 'ww'], { l: '#fff3b0', w: '#3a3442' }, x, y);
   sprite(['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'], { p: '#3a3442' }, x + 1, y + 3);
 }
+// ---------- Umgebung pro Filiale (passend zur Stadtansicht) ----------
+const STADT = { strasse: '#55505a', linie: '#d8cf9a', bord: '#8e8a92', gehweg: '#b7b2b9', gehwegFuge: '#a8a3aa' };
 function draussen(x0, x1, y0, y1, L) {
-  // Bürgersteig mit dezenten Platten
-  r(x0, y0, x1 - x0, y1 - y0, '#8f8893');
-  const sx = Math.floor(x0 / 10) * 10, sy = Math.floor(y0 / 10) * 10;
-  for (let x = sx; x < x1; x += 10) r(x, y0, P, y1 - y0, '#857e89');
-  for (let y = sy; y < y1; y += 10) r(x0, y, x1 - x0, P, '#857e89');
-  // Straße unter dem Laden
-  const st = L.H + 22, sb = L.H + 54;
-  r(x0, st - 2, x1 - x0, 2, '#b9b2bd');                 // Bordstein
-  r(x0, st, x1 - x0, sb - st, '#3f3a45');               // Asphalt
-  for (let x = Math.floor(x0 / 16) * 16; x < x1; x += 16) r(x, (st + sb) / 2 - 1, 8, 2, '#d9c98f');
-  for (let y = st + 3; y < sb - 2; y += 4) r(L.mitte - 12, y, 24, 2, '#d8d2dc');   // Zebrastreifen
-  r(x0, sb, x1 - x0, 2, '#b9b2bd');
-  // Bäume und Laternen
-  for (const [bx, by] of [[-26, 4], [-26, L.H - 16], [L.W + 16, 4], [L.W + 16, L.H - 16], [-60, L.H / 2 - 6], [L.W + 50, L.H / 2 - 6]]) baum(bx, by);
-  laterne(L.mitte - 36, L.H + 3); laterne(L.mitte + 34, L.H + 3);
+  const f = Math.min(spiel.filiale, UMGEBUNG.length - 1);
+  UMGEBUNG[f](x0, x1, y0, y1, L);
 }
+// Straße unter dem Laden (wie in der Stadt), mit Zebrastreifen vor der Tür und fahrenden Autos
+function strasse(x0, x1, L, mitZebra = true) {
+  const st = L.H + 22, sb = L.H + 54;
+  r(x0, st - 2, x1 - x0, 2, STADT.bord);
+  r(x0, st, x1 - x0, sb - st, STADT.strasse);
+  for (let x = Math.floor(x0 / 16) * 16; x < x1; x += 16) r(x, (st + sb) / 2 - 1, 8, 2, STADT.linie);
+  if (mitZebra) for (let x = L.mitte - 12; x < L.mitte + 12; x += 4) r(x, st + 3, 2, sb - st - 6, '#d8d2dc');
+  r(x0, sb, x1 - x0, 2, STADT.bord);
+  // Autos: oben nach rechts, unten nach links
+  const breite = x1 - x0 + 60;
+  for (let n = 0; n < 3; n++) {
+    const xr = x0 - 30 + ((zeit * (22 + n * 7) + n * 97) % breite);
+    autoOben(xr, st + 4, 20, 9, ['#d04a4a', '#3a7ad0', '#f0c050'][n], 1);
+    const xl = x1 + 30 - ((zeit * (18 + n * 6) + n * 131) % breite) - 20;
+    autoOben(xl, sb - 13, 20, 9, ['#5ab07a', '#e8e2d8', '#8a5ad0'][n], -1);
+  }
+  return { st, sb };
+}
+function autoOben(x, y, w, h, c, richtung = 1) {
+  r(x + 1, y + h, w - 1, 1.5, 'rgba(20,10,20,.35)');
+  r(x - P, y - P, w + 2 * P, h + 2 * P, F_BASIS.umriss);
+  r(x, y, w, h, c);
+  r(x, y, w, 1.5, ton(c, 1.25));
+  const sx = richtung > 0 ? x + w * 0.55 : x + w * 0.18;          // Frontscheibe in Fahrtrichtung
+  r(sx, y + 1.5, w * 0.27, h - 3, '#9ad0e8');
+  r(sx + w * 0.27 - 1, y + 1.5, 1, h - 3, '#5a8aa8');
+}
+function gehweg(x0, x1, y0, y1, farbe = STADT.gehweg, fuge = STADT.gehwegFuge, raster = 10) {
+  r(x0, y0, x1 - x0, y1 - y0, farbe);
+  for (let x = Math.floor(x0 / raster) * raster; x < x1; x += raster) r(x, y0, P, y1 - y0, fuge);
+  for (let y = Math.floor(y0 / raster) * raster; y < y1; y += raster) r(x0, y, x1 - x0, P, fuge);
+}
+// Nachbarhaus von oben (Satteldach), wie in der Stadtansicht
+function dachHaus(x, y, w, h, farbe, first) {
+  if (w < 4 || h < 4) return;
+  r(x + 1, y + h, w - 1, 2, 'rgba(20,10,20,.3)');
+  r(x - P, y - P, w + 2 * P, h + 2 * P, F_BASIS.umriss);
+  const m = y + Math.round(h * 0.45);
+  r(x, y, w, m - y, ton(farbe, 1.12)); r(x, m, w, y + h - m, farbe);
+  for (let ry = y + 4, n = 0; ry < y + h - 2; ry += 4, n++) {
+    if (Math.abs(ry - m) < 2) continue;
+    r(x, ry, w, P, ton(farbe, 0.82));
+    for (let jx = x + (n % 2 ? 3 : 0); jx < x + w; jx += 6) r(jx, ry - 4 + P, P, 4 - P, ton(farbe, 0.82));
+  }
+  r(x, m - 1, w, 2, first || ton(farbe, 0.65));
+  if (w > 24) { const sx = x + Math.round(w * 0.72), sy = y + 3; r(sx - P, sy - P, 5 + 2 * P, 6 + 2 * P, F_BASIS.umriss); r(sx, sy, 5, 6, '#8a5a48'); }
+}
+// Reihe Nachbarhäuser von xa bis xb (Lücken = schmale Gassen)
+function hausReihe(xa, xb, y, h, farben, first, start = 0) {
+  if (xb - xa < 6) return;
+  let x = xa, n = start;
+  while (x < xb - 6) {
+    const w = Math.min(xb - x, 34 + ((n * 13) % 20));
+    dachHaus(x, y, w, h, farben[n % farben.length], first);
+    x += w + 4; n++;
+  }
+}
+// Häuserblock: mehrere Reihen untereinander (statt eines riesigen Hauses)
+function hausBlock(xa, xb, ya, yb, farben, first, start = 0) {
+  if (xb - xa < 6 || yb - ya < 6) return;
+  let y = ya, n = start;
+  while (y < yb - 6) {
+    const h = Math.min(yb - y, 38 + ((n * 17) % 22));
+    hausReihe(xa, xb, y, h, farben, first, n);
+    y += h + 4; n++;
+  }
+}
+function blumenkuebel(x, y) {
+  r(x - P, y - P, 8 + 2 * P, 7 + 2 * P, F_BASIS.umriss);
+  r(x, y, 8, 7, '#8a5a3a'); r(x + 1, y + 1, 6, 4, '#5fae5a');
+  r(x + 2, y + 1.5, 1.5, 1.5, '#e05a6a'); r(x + 5, y + 3, 1.5, 1.5, '#f0c050');
+}
+function bank(x, y) { r(x - P, y - P, 18 + 2 * P, 5 + 2 * P, F_BASIS.umriss); r(x, y, 18, 5, '#9a6a42'); for (let i = 1; i < 5; i += 1.5) r(x, y + i, 18, P, '#7a5232'); }
+function passant(x, y, c, haar) {   // Person von oben: Kopf + Schultern
+  r(x - 0.5, y + 4, 7, 2, 'rgba(20,10,20,.25)');
+  r(x - P, y - P, 6 + 2 * P, 5 + 2 * P, F_BASIS.umriss); r(x, y, 6, 5, c);
+  r(x + 1.5 - P, y + 0.5 - P, 3 + 2 * P, 3 + 2 * P, F_BASIS.umriss); r(x + 1.5, y + 0.5, 3, 3, haar);
+}
+function muelltonne(x, y) {
+  r(x - P, y - P, 9 + 2 * P, 8 + 2 * P, F_BASIS.umriss);
+  r(x, y, 9, 8, '#2f4a3a'); r(x, y, 9, 2, '#4a6a5a'); r(x + 3, y + 3, 3, 1, '#1f3228');
+}
+function kiste(x, y) { r(x - P, y - P, 8 + 2 * P, 7 + 2 * P, F_BASIS.umriss); r(x, y, 8, 7, '#9a7048'); r(x, y, 8, 1, '#b88a5c'); r(x, y + 3, 8, P, '#7a5232'); r(x + 3.5, y, P, 7, '#7a5232'); }
+function springbrunnen(x, y) {
+  r(x - P, y - P, 22 + 2 * P, 22 + 2 * P, F_BASIS.umriss);
+  r(x, y, 22, 22, '#c8c2b8'); r(x + 2, y + 2, 18, 18, '#5aa0d8'); r(x + 3, y + 3, 16, 3, '#7ab8e8');
+  r(x + 8, y + 8, 6, 6, '#c8c2b8');
+  const h = 1 + Math.abs(Math.sin(zeit * 3)) * 2;
+  r(x + 10, y + 10 - h, 2, h, '#e8f4ff');
+}
+
+const UMGEBUNG = [
+  // 0 Hinterhof: dunkler Hof, enge Nachbarhäuser, Mülltonnen, Pfützen
+  (x0, x1, y0, y1, L) => {
+    r(x0, y0, x1 - x0, y1 - y0, '#6a6268');
+    for (let gx = Math.floor(x0 / 5) * 5; gx < x1; gx += 5) for (let gy = Math.floor(y0 / 4) * 4; gy < y1; gy += 4) r(gx + (gy % 8 ? 2 : 0), gy, 1.5, P, '#5a5258');
+    const farben = ['#8a6a5a', '#7a5a5a', '#6e6070', '#8a5a4a'];
+    hausBlock(x0, -10, y0 + 2, L.H + 8, farben, null, 0);
+    hausBlock(L.W + 10, x1, y0 + 2, L.H + 8, farben, null, 2);
+    hausBlock(-6, L.W + 6, y0 + 2, -34, farben, null, 1);   // hinter dem Laden
+    muelltonne(L.W - 22, L.H + 6); muelltonne(L.W - 11, L.H + 7); kiste(8, L.H + 7); kiste(16, L.H + 9);
+    r(L.mitte + 30, L.H + 12, 12, 3, '#4a5a7a'); r(L.mitte + 31, L.H + 12, 6, 1, '#6a7a9a');    // Pfütze
+    r(26, L.H + 14, 2, 2, '#5f8a4a'); r(L.W - 40, L.H + 3, 2, 2, '#5f8a4a');                    // Unkraut
+    const { sb } = strasse(x0, x1, L);
+    gehweg(x0, x1, sb + 2, sb + 16);
+    hausBlock(x0, x1, sb + 18, y1, farben, null, 3);
+  },
+  // 1 Fußgängerzone: helles Pflaster überall, Bänke, Blumenkübel, Passanten, Nachbarläden
+  (x0, x1, y0, y1, L) => {
+    r(x0, y0, x1 - x0, y1 - y0, '#d8c8a8');
+    for (let gx = Math.floor(x0 / 6) * 6; gx < x1; gx += 6) for (let gy = Math.floor(y0 / 6) * 6; gy < y1; gy += 6) r(gx, gy, 1, 1, '#c8b896');
+    const farben = ['#5f6f86', '#8a6a5a', '#6a7a6a', '#7a6a8a'];
+    hausBlock(x0, -12, y0 + 2, L.H + 6, farben, null, 0);
+    hausBlock(L.W + 12, x1, y0 + 2, L.H + 6, farben, null, 1);
+    hausBlock(-6, L.W + 6, y0 + 2, -34, farben, null, 2);
+    // Mittelstreifen der Fußgängerzone: Bänke, Kübel, Bäume
+    const my = L.H + 32;
+    for (let x = Math.floor(x0 / 70) * 70 + 10; x < x1; x += 70) { blumenkuebel(x, my); bank(x + 16, my + 1); baum(x + 44, my - 8); }
+    blumenkuebel(L.mitte - 34, L.H + 6); blumenkuebel(L.mitte + 26, L.H + 6);
+    // Passanten
+    const breite = x1 - x0 + 40, haare = ['#5a3a20', '#2a2430', '#e0c060', '#a04a2a', '#7a6a6a'];
+    for (let n = 0; n < 6; n++) {
+      const v = 8 + (n % 3) * 4, dir = n % 2 ? 1 : -1;
+      let x = (zeit * v + n * 71) % breite; if (dir < 0) x = breite - x;
+      passant(x0 - 20 + x, L.H + 16 + (n % 3) * 26 + (n > 2 ? 4 : 0), ['#d04a4a', '#3a7ad0', '#f0c050', '#5ab07a', '#8a5ad0', '#e88a4a'][n], haare[n % 5]);
+    }
+    hausBlock(x0, x1, L.H + 90, y1, farben, null, 3);
+  },
+  // 2 Einkaufszentrum: Laden sitzt im Center, daneben weitere Flachdächer, davor Parkplatz
+  (x0, x1, y0, y1, L) => {
+    r(x0, y0, x1 - x0, y1 - y0, '#6a666e');
+    const D = DACH_STILE[2];
+    if (-12 - x0 > 10) flachdach(x0, y0 + 2, -12 - x0, L.H + 8 - y0, D, 1);
+    if (x1 - L.W - 12 > 10) flachdach(L.W + 12, y0 + 2, x1 - L.W - 12, L.H + 8 - y0, D, 1);
+    if (-34 - y0 > 10) flachdach(-6, y0 + 2, L.W + 12, -34 - y0, D, 1);
+    gehweg(x0, x1, L.H + 10, L.H + 22, '#c9ced3', '#b4bac0', 8);
+    // Einkaufswagen
+    for (let i = 0; i < 3; i++) { const wx = L.W - 30 + i * 4; r(wx - P, L.H + 13 - P, 6 + 2 * P, 5 + 2 * P, F_BASIS.umriss); r(wx, L.H + 13, 6, 5, '#c8ccd0'); r(wx + 1, L.H + 14, 4, 3, '#8a9198'); }
+    // Parkplatz statt Straße: Reihen mit Stellplätzen und Autos
+    const farben = ['#d04a4a', '#3a7ad0', '#f0c050', '#e8e2d8', '#5ab07a', '#8a5ad0', '#2a2a32'];
+    for (let reihe = 0; reihe < 4; reihe++) {
+      const ry = L.H + 26 + reihe * 34;
+      if (ry > y1) break;
+      for (let x = Math.floor(x0 / 14) * 14; x < x1; x += 14) {
+        r(x, ry, P, 22, '#d8d4dc');
+        const k = Math.abs(Math.round(x / 14) * 7 + reihe * 3) % 11;
+        if (k % 3 !== 1 && Math.abs(x + 7 - L.mitte) > 16) autoOben(x + 3, ry + 3, 9, 16, farben[k % farben.length], 1);
+      }
+      r(x0, ry + 26, x1 - x0, 1, '#d8d4dc');
+    }
+  },
+  // 3 Hauptstraße: Steinplatten, roter Teppich mit Messingpfosten, elegante Nachbarhäuser
+  (x0, x1, y0, y1, L) => {
+    gehweg(x0, x1, y0, y1, '#a8a2a8', '#98929a', 8);
+    const farben = ['#3e3a46', '#4a4252', '#36343e'];
+    hausBlock(x0, -12, y0 + 2, L.H + 6, farben, '#c8932e', 0);
+    hausBlock(L.W + 12, x1, y0 + 2, L.H + 6, farben, '#c8932e', 1);
+    hausBlock(-6, L.W + 6, y0 + 2, -34, farben, '#c8932e', 2);
+    r(L.mitte - 7, L.H, 14, 20, '#b03a3a'); r(L.mitte - 7, L.H, 1, 20, '#d05a5a'); r(L.mitte + 6, L.H, 1, 20, '#802a2a');
+    for (const px of [L.mitte - 11, L.mitte + 9]) for (const py of [L.H + 4, L.H + 14]) { r(px - P, py - P, 2 + 2 * P, 2 + 2 * P, F_BASIS.umriss); r(px, py, 2, 2, '#f0c050'); }
+    r(L.mitte - 10, L.H + 4.5, 20, P, '#b03a3a'); r(L.mitte - 10, L.H + 14.5, 20, P, '#b03a3a');   // Kordeln
+    laterne(L.mitte - 40, L.H + 3); laterne(L.mitte + 38, L.H + 3);
+    const { sb } = strasse(x0, x1, L, false);
+    gehweg(x0, x1, sb + 2, sb + 16, '#a8a2a8', '#98929a', 8);
+    hausBlock(x0, x1, sb + 18, y1, farben, '#c8932e', 3);
+  },
+  // 4 Prachtstraße: Rasen, Kiesweg zur Tür, Springbrunnen, Baumallee an der Straße
+  (x0, x1, y0, y1, L) => {
+    r(x0, y0, x1 - x0, y1 - y0, '#5a9a4e');
+    for (let gx = Math.floor(x0 / 7) * 7; gx < x1; gx += 7) for (let gy = Math.floor(y0 / 9) * 9; gy < y1; gy += 9) r(gx + ((gy / 9) % 2) * 3, gy, 1, 1, '#6aaa5a');
+    const farben = ['#6e4a8a', '#5a3e70', '#7a5a8a'];
+    if (-40 - x0 > 30) hausBlock(x0, -40, y0 + 2, L.H - 10, farben, '#f0c050', 0);
+    if (x1 - L.W - 40 > 30) hausBlock(L.W + 40, x1, y0 + 2, L.H - 10, farben, '#f0c050', 1);
+    springbrunnen(-34, L.H / 2 - 11); springbrunnen(L.W + 12, L.H / 2 - 11);
+    for (const [bx, by] of [[-30, 6], [-30, L.H - 22], [L.W + 16, 6], [L.W + 16, L.H - 22], [-62, L.H / 2 - 30], [L.W + 48, L.H / 2 - 30], [-62, L.H / 2 + 14], [L.W + 48, L.H / 2 + 14]]) baum(bx, by);
+    r(L.mitte - 8, L.H, 16, 20, '#d8cba8');                                   // Kiesweg
+    for (let gy = L.H + 2; gy < L.H + 20; gy += 3) r(L.mitte - 6 + (gy % 6 ? 3 : 0), gy, 1, 1, '#c0b090');
+    for (let hx = 4; hx < L.W - 4; hx += 10) if (Math.abs(hx + 4 - L.mitte) > 16) { r(hx - P, L.H + 4 - P, 8 + 2 * P, 6 + 2 * P, F_BASIS.umriss); r(hx, L.H + 4, 8, 6, '#3f7a3a'); r(hx + 1, L.H + 4.5, 4, 2, '#5a9a4e'); }   // Hecke
+    const { sb } = strasse(x0, x1, L);
+    for (let x = Math.floor(x0 / 40) * 40 + 12; x < x1; x += 40) baum(x, sb + 4);
+    for (let x = Math.floor(x0 / 40) * 40 + 32; x < x1; x += 40) laterne(x, sb + 4);
+    // gegenüber: Kiesweg und Villen
+    r(x0, sb + 22, x1 - x0, 8, '#d8cba8');
+    hausBlock(x0, x1, sb + 36, y1, farben, '#f0c050', 2);
+  },
+];
 
 // ---------- Räume ----------
 function raum(x, y, w, h, boden, linie, linienAbstand) {
