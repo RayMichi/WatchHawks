@@ -89,9 +89,10 @@ const BELOHNUNG_TEXT = {
   team:   w => t('bel.team', { w }),
   geld:   w => t('bel.geld', { x: zahl(w) }),
   vip:    w => t('bel.vip', { w }),
-  offline: w => t('bel.offline', { w })
+  offline: w => t('bel.offline', { w }),
+  stern:  w => t('bel.stern', { w })
 };
-const BELOHNUNG_ICON = { preis: 'verkauf', bau: 'bau', polier: 'polier', pack: 'pack', team: 'manager', geld: 'verkauf', vip: 'vip', offline: 'stern' };
+const BELOHNUNG_ICON = { preis: 'verkauf', bau: 'bau', polier: 'polier', pack: 'pack', team: 'manager', geld: 'verkauf', vip: 'vip', offline: 'stern', stern: 'stern' };
 
 const anzahlTeam = () => Object.values(spiel.team).filter(x => x > 0).length;
 
@@ -130,7 +131,29 @@ const ERFOLGE = [
 ];
 // Aufgabentexte in der aktuellen Sprache (Schlüssel et.<id> in sprache.js)
 for (const e of ERFOLGE) e.text = z => t('et.' + e.id, { z, x: zahl(z) });
+// Konzern-Erfolge (eigener Reiter im Erfolge-Fenster, sobald der Konzern gegründet ist) – Belohnung: Sterne
+const kz = () => spiel.konzern || { verdient: 0, f: [], limos: 0, gesammelt: 0, kampagnen: 0 };
+const K_ERFOLGE = [
+  { id: 'k_umsatz', name: 'Konzernumsatz', wert: () => kz().verdient,
+    stufen: [{ ziel: 1e8, art: 'stern', wert: 5 }, { ziel: 1e9, art: 'stern', wert: 10 }, { ziel: 1e10, art: 'stern', wert: 15 },
+             { ziel: 1e11, art: 'stern', wert: 25 }, { ziel: 1e12, art: 'stern', wert: 40 }] },
+  { id: 'k_ausbau', name: 'Bauherr', wert: () => kz().f.reduce((s, f) => s + f.stufe, 0),
+    stufen: [{ ziel: 50, art: 'stern', wert: 3 }, { ziel: 100, art: 'stern', wert: 5 }, { ziel: 250, art: 'stern', wert: 10 }, { ziel: 500, art: 'stern', wert: 20 }] },
+  { id: 'k_limo', name: 'Chauffeur', wert: () => kz().limos,
+    stufen: [{ ziel: 1, art: 'stern', wert: 2 }, { ziel: 10, art: 'stern', wert: 5 }, { ziel: 50, art: 'stern', wert: 10 }, { ziel: 200, art: 'stern', wert: 20 }] },
+  { id: 'k_leiter', name: 'Gute Leitung', wert: () => kz().f.filter(f => f.leiter).length,
+    stufen: [{ ziel: 1, art: 'stern', wert: 3 }, { ziel: 3, art: 'stern', wert: 5 }, { ziel: 5, art: 'stern', wert: 10 }] },
+  { id: 'k_sterne', name: 'Sternensammler', wert: () => kz().gesammelt,
+    stufen: [{ ziel: 10, art: 'stern', wert: 3 }, { ziel: 50, art: 'stern', wert: 5 }, { ziel: 200, art: 'stern', wert: 10 }, { ziel: 1000, art: 'stern', wert: 25 }] },
+  { id: 'k_werbung', name: 'Werbeprofi', wert: () => kz().kampagnen,
+    stufen: [{ ziel: 1, art: 'stern', wert: 2 }, { ziel: 10, art: 'stern', wert: 5 }, { ziel: 50, art: 'stern', wert: 10 }] },
+  { id: 'k_spezial', name: 'Spezialist', wert: () => kz().f.reduce((s, f) => s + f.spez.length, 0),
+    stufen: [{ ziel: 1, art: 'stern', wert: 3 }, { ziel: 5, art: 'stern', wert: 5 }, { ziel: 15, art: 'stern', wert: 10 }] },
+];
+for (const e of K_ERFOLGE) e.text = z => t('et.' + e.id, { z, x: zahl(z) });
+const alleErfolge = () => spiel.konzern ? ERFOLGE.concat(K_ERFOLGE) : ERFOLGE;
 const ERFOLG_STUFEN_GESAMT = ERFOLGE.reduce((s, e) => s + e.stufen.length, 0);
+const K_ERFOLG_STUFEN = K_ERFOLGE.reduce((s, e) => s + e.stufen.length, 0);
 const gesammelt = e => spiel.erfolgStufe[e.id] || 0;                 // eingesammelte Stufen
 const erreicht = e => e.stufen.filter(s => e.wert() >= s.ziel).length; // erreichte Stufen
 

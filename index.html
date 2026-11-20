@@ -26,6 +26,7 @@
           <div class="ebalken"><div id="umzugFill"></div></div>
           <div class="klein" id="umzugNaechster"></div>
         </div>
+        <div class="kasten trend" id="trendBox"><i data-icon="stern"></i><span id="trendTxt"></span></div>
         <div class="kasten boost" id="boostBox" hidden><i data-icon="vip"></i><span id="boostTxt"></span></div>
       </div>
       <div class="ecke">
@@ -40,6 +41,8 @@
       <button class="aktion polier" id="polBtn" hidden><span class="taste">2</span><i data-icon="polier"></i><span class="label" data-t="btn.polieren"></span></button>
       <button class="aktion pack" id="packBtn" hidden><span class="taste">3</span><i data-icon="pack"></i><span class="label" id="packLabel"></span></button>
       <button class="aktion verkauf" id="verBtn" hidden><span class="taste">4</span><i data-icon="verkauf"></i><span class="label" id="verLabel"></span></button>
+      <button class="aktion kKnopf kStern" id="kSternBtn"><i data-icon="stern"></i><span class="label" id="kSternLabel"></span></button>
+      <button class="aktion kKnopf kWerbung" id="kWerbBtn"><i data-icon="upgrades"></i><span class="label" id="kWerbLabel"></span></button>
       <button class="zweit" id="menueBtn" hidden><i data-icon="upgrades"></i><span data-t="btn.upgrades"></span><span class="tabStern" id="menueStern" hidden><i data-icon="stern"></i></span></button>
     </div>
   </div>
@@ -51,6 +54,9 @@
       <button data-tab="manager" hidden><i data-icon="manager"></i><span data-t="tab.manager"></span><span class="tabStern" hidden><i data-icon="stern"></i></span></button>
       <button data-tab="laden" hidden><i data-icon="laden"></i><span data-t="tab.laden"></span><span class="tabStern" hidden><i data-icon="stern"></i></span></button>
       <button data-tab="ruf" hidden><i data-icon="stern"></i><span data-t="tab.ruf"></span><span class="tabStern" hidden><i data-icon="stern"></i></span></button>
+      <button data-tab="kfilialen" hidden><i data-icon="laden"></i><span data-t="tab.kfilialen"></span></button>
+      <button data-tab="ksterne" hidden><i data-icon="stern"></i><span data-t="tab.ksterne"></span></button>
+      <button data-tab="kzentrale" hidden><i data-icon="manager"></i><span data-t="tab.kzentrale"></span></button>
       <button class="zweit schliessen" id="zuBtn" data-t-aria="aria.schliessen"><i data-icon="zu"></i></button>
     </div>
     <div id="inhalt"></div>
@@ -65,6 +71,10 @@
       <div><b data-t="erfolge.titel"></b><div class="klein" id="erfolgeBonus"></div></div>
       <button class="kleinknopf boniKnopf" id="boniBtn"><i data-icon="statistik"></i><span id="boniLabel" data-t="erfolge.boni"></span></button>
       <button class="zweit kleinknopf" id="erfolgeZu" data-t-aria="aria.schliessen"><i data-icon="zu"></i></button>
+    </div>
+    <div class="erfolgReiter" id="erfolgReiter" hidden>
+      <button data-etab2="laden" class="aktiv"><i data-icon="laden"></i><span data-t="erfolge.laden"></span><span class="badge" id="ebLaden"></span></button>
+      <button data-etab2="konzern"><i data-icon="manager"></i><span data-t="erfolge.konzern"></span><span class="badge" id="ebKonzern"></span></button>
     </div>
     <div id="erfolgeListe"></div>
     <div id="boniListe" hidden></div>
@@ -154,10 +164,6 @@
   </div>
 </div>
 
-<div id="stadtUi" hidden>
-  <div class="stadtTitel"><b data-t="konzern.stadtTitel"></b><span data-t="konzern.vorschau"></span></div>
-  <button id="stadtZurueck" data-t="konzern.zurueck"></button>
-</div>
 
 <div id="fehler"></div>
 

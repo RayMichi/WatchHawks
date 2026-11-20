@@ -118,9 +118,15 @@ const VORLAGEN = [
       modellSetzen(d, ['quarz', 'taucher', 'chrono', 'gold', 'diamant']);
       d.tabFrei = { uhren: true, laden: true, ruf: true }; d.tabGesehen = { menue: true, uhren: true, laden: true, ruf: true, manager: true };
       return d; } },
+  { name: { de: 'Konzern läuft (5 Mio. €, 40 ★)', en: 'Corporation running (5M €, 40 ★)' }, bau: () => {
+      const d = VORLAGEN[3].bau();
+      Object.assign(d, { sterne: 40, geld: 5e6, konzern: neuerKonzern() });
+      return d; } },
 ];
 const CHEATS = [
-  { name: '€ ×10', tun: () => { const plus = Math.max(1000, spiel.geld * 9); spiel.geld += plus; spiel.verdient += plus; spiel.rundeVerdient += plus; } },
+  { name: '€ ×10', tun: () => { const plus = Math.max(1000, spiel.geld * 9); spiel.geld += plus; spiel.verdient += plus; spiel.rundeVerdient += plus; if (spiel.konzern) spiel.konzern.verdient += plus; } },
+  { name: { de: 'Töpfe voll', en: 'Fill pots' }, tun: () => { if (spiel.konzern) spiel.konzern.f.forEach((f, i) => f.topf = kTopfGroesse(i)); } },
+  { name: 'Limo', tun: () => { if (spiel.konzern) naechsteLimo = 0; } },
   { name: '+10 ★', tun: () => { spiel.sterne += 10; spiel.gesamtSterne += 10; } },
   { name: '+50 ★', tun: () => { spiel.sterne += 50; spiel.gesamtSterne += 50; } },
   { name: { de: 'Alle Reiter', en: 'All tabs' }, tun: () => { Object.assign(spiel.tabFrei, { uhren: true, laden: true, ruf: true }); spiel.upg.manager = 1; } },

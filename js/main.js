@@ -8,12 +8,15 @@ function schritt() {
   letzte = jetzt; zeit += dt;
   spiel.spielzeit += dt; spiel.rundeZeit += dt;
 
-  boostUpdate(dt);
-  vipUpdate(Math.min(dt, 5));
-  const turbo = boostFaktor('turbo');
-  mitarbeiterArbeiten(dt * turbo);
-  packenWeiter(dt * turbo);
-  effekteUpdaten(Math.min(dt, 1));
+  if (imKonzern()) konzernTick(Math.min(dt, 5));
+  else {
+    boostUpdate(dt);
+    vipUpdate(Math.min(dt, 5));
+    const turbo = boostFaktor('turbo');
+    mitarbeiterArbeiten(dt * turbo);
+    packenWeiter(dt * turbo);
+    effekteUpdaten(Math.min(dt, 1));
+  }
   introUpdate(Math.min(dt, 0.1));
   konzernUpdate(Math.min(dt, 0.1));
 
@@ -29,7 +32,7 @@ laden();
 spracheSetzen(spiel.sprache);
 offlineBerechnen();
 if (!spiel.introGesehen) introStarten();
-else if (/[?&]stadt\b/.test(location.search)) setTimeout(() => konzernStarten(true), 300);   // Test: Stadtansicht direkt
+else if (imKonzern()) konzernModusAn();
 groesse();
 schritt();
 setInterval(schritt, 33);

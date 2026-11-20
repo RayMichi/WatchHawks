@@ -159,7 +159,7 @@ function mitarbeiterKaufen(m) {
 // ===============================================================
 // Neue erreichte Stufen melden
 function erfolgePruefen() {
-  for (const e of ERFOLGE) {
+  for (const e of alleErfolge()) {
     const n = erreicht(e);
     if (n > (spiel.erfolgGemeldet[e.id] || 0)) {
       spiel.erfolgGemeldet[e.id] = n;
@@ -169,12 +169,13 @@ function erfolgePruefen() {
 }
 // Nächste Stufe einsammeln -> Belohnung wirkt
 function erfolgEinsammeln(id) {
-  const e = ERFOLGE.find(x => x.id === id);
+  const e = alleErfolge().find(x => x.id === id);
   const k = gesammelt(e);
   if (k >= e.stufen.length || erreicht(e) <= k) return;
   const st = e.stufen[k];
   spiel.erfolgStufe[id] = k + 1;
   if (st.art === 'geld') spiel.geld += st.wert;
+  if (st.art === 'stern') { spiel.sterne += st.wert; spiel.gesamtSterne += st.wert; }
   meldung(t('m.eingesammelt', { b: BELOHNUNG_TEXT[st.art](st.wert) }));
 }
 
@@ -288,6 +289,7 @@ function raritaetErsteigern() {
 //    mit dem langsamsten Schritt der Kette (= Engpass).
 // ===============================================================
 function offlineBerechnen() {
+  if (spiel.konzern) return konzernOffline();
   const sek = Math.min((Date.now() - (spiel.zuletzt || Date.now())) / 1000, offlineStunden() * 3600);
   if (sek < 60) return;
   const team = spiel.team;   // nicht „t“ nennen – das ist die Übersetzungsfunktion!

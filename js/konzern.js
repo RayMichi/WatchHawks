@@ -1,16 +1,218 @@
 // ===============================================================
-// 12. KONZERN – Schritt 1: Gründung als Vorschau
-//     Kachel im Ruf-Reiter (50 freie Sterne) → Dach legt sich auf den Laden → Kamera zoomt raus
-//     → Stadt mit allen Filialen → Lisa erklärt → Stadtansicht (vorerst nur zum Anschauen)
-//     Sterne abziehen + Reset + Aktien kommen in Schritt 2.
+// 12. KONZERN
+//     Gründung (50 freie ★, Geld und restliche Sterne bleiben) → Dach legt sich auf den Laden →
+//     Zoom raus auf die Stadt → Lisa erklärt → ab jetzt ist die Stadt das Spiel.
+//     Jede Filiale läuft automatisch in Runden (kleine Läden oft & wenig, große selten & viel,
+//     pro Sekunde gleich viel). Ausbau mit €, Sonder-Upgrades mit ★, Sterne sammeln sich in Töpfen.
+//     Dazu: Meilensteine, Spezialisierung, Trends, Werbekampagne, Limousine (VIP).
 // ===============================================================
-const konzern = { phase: null, t: 0, bild: null, quelle: null };
+const konzern = { phase: null, t: 0, bild: null, quelle: null, waehlen: false, schwebe: [] };
 const ZU_DAUER = 1.0, ZOOM_DAUER = 2.2;
-
 const konzernAktiv = () => ['zoom', 'dialog', 'stadt'].includes(konzern.phase);
+const imKonzern = () => !!spiel.konzern;
 
+// ---------- Zahlen (zum Balancen alles hier) ----------
+const K = {
+  runde:      [2, 6, 20, 60, 180],      // Sekunden pro Runde (Stufe 1, ohne Meilensteine)
+  proSek:     1000,                     // € pro Sekunde und Stufe – für alle Filialen gleich
+  preisStart: 100000, preisFaktor: 1.10, // Ausbau: 100.000 € × 1,10^(Stufe−1)
+  meilensteine: [25, 50, 100, 150, 200, 300, 400],       // pro Filiale: Runde doppelt so schnell
+  konzernMeilensteine: [50, 100, 200, 300, 400],          // alle Filialen: alles ×2
+  umsatzFaktor: 1.5,                    // Spezialisierung Umsatz
+  sternZeit:  900,                      // Sekunden pro Stern und Filiale (Grundwert)
+  topf:       3, tresorPlus: 2,         // Sternentopf: Platz + pro Tresor-Stufe
+  spezStufen: [10, 25, 50],             // ab diesen Stufen gibt es eine Spezialisierung
+  trendDauer: 600, trendFaktor: 3,
+  kampagneFaktor: 3, kampagneDauer: 60, kampagneAbkling: 600,
+  limoAbstand: 90, limoBleibt: 12, limoSperre: 30,
+};
+const K_ZENTRALE = [
+  { id: 'marketing', icon: 'verkauf', max: 10, kosten: n => 20 * Math.pow(2, n) },   // +50 % € je Stufe
+  { id: 'jaeger',    icon: 'stern',   max: 10, kosten: n => 15 * Math.pow(2, n) },   // Sterne +25 % schneller
+  { id: 'chauffeur', icon: 'vip',     max: 5,  kosten: n => 10 * Math.pow(2, n) },   // Limos 25 % häufiger, Belohnung +50 %
+  { id: 'agentur',   icon: 'upgrades',max: 5,  kosten: n => 10 * Math.pow(2, n) },   // Werbekampagne: Abklingzeit −15 %, +15 s
+];
+const K_LEITER = 15, kTresorKosten = n => 5 * Math.pow(2, n), kTurboKosten = n => 10 * Math.pow(3, n);
+const K_TREND_TEXT = ['trend.hinterhof', 'trend.fussgaenger', 'trend.ezk', 'trend.haupt', 'trend.pracht'];
+
+function neuerKonzern() {
+  return {
+    f: K.runde.map(() => ({ stufe: 1, t: 0, topf: 0, leiter: false, tresor: 0, turbo: 0, spez: [] })),
+    zentrale: { marketing: 0, jaeger: 0, chauffeur: 0, agentur: 0 },
+    trend: { geld: 1, stern: 3, rest: K.trendDauer },
+    kampagne: { f: -1, rest: 0, abkling: 0 },
+    boost: null, menge: 1,
+    verdient: 0, limos: 0, gesammelt: 0, kampagnen: 0, gegruendet: Date.now(),
+  };
+}
+
+// ---------- Rechnen ----------
+const kAnzahl = (liste, w) => liste.filter(x => x === w).length;
+const kSelbstMeilen = st => K.meilensteine.filter(m => st >= m).length;
+const kMinStufe = () => Math.min(...spiel.konzern.f.map(f => f.stufe));
+const kKonzernMeilen = () => K.konzernMeilensteine.filter(m => kMinStufe() >= m).length;
+const kBoost = art => { const b = spiel.konzern.boost; return b && b.art === art ? b.faktor : 1; };
+function kProSek(i) {   // € pro Sekunde einer Filiale
+  const kz = spiel.konzern, f = kz.f[i];
+  let x = K.proSek * f.stufe * Math.pow(2, kSelbstMeilen(f.stufe)) * Math.pow(2, kKonzernMeilen()) * Math.pow(2, f.turbo);
+  x *= Math.pow(K.umsatzFaktor, kAnzahl(f.spez, 'umsatz')) * Math.pow(1.25, kAnzahl(f.spez, 'tempo'));
+  if (kz.trend.geld === i) x *= K.trendFaktor;
+  if (kz.kampagne.f === i && kz.kampagne.rest > 0) x *= K.kampagneFaktor;
+  x *= (1 + 0.5 * kz.zentrale.marketing) * kBoost('preis') * kBoost('turbo');
+  return x;
+}
+const kGesamtProSek = () => spiel.konzern.f.reduce((s, _, i) => s + kProSek(i), 0);
+function kRunde(i) {    // Sekunden pro Runde (nur Optik/Rhythmus – das Geld pro Sekunde steckt in kProSek)
+  const f = spiel.konzern.f[i];
+  return K.runde[i] / Math.pow(2, kSelbstMeilen(f.stufe)) / Math.pow(1.25, kAnzahl(f.spez, 'tempo')) / kBoost('turbo');
+}
+function kSternRate(i) { // Sterne pro Sekunde
+  const kz = spiel.konzern, f = kz.f[i];
+  let r = 1 / K.sternZeit * Math.pow(2, kAnzahl(f.spez, 'prestige')) * Math.pow(1.25, kAnzahl(f.spez, 'tempo'));
+  if (kz.trend.stern === i) r *= K.trendFaktor;
+  return r * (1 + 0.25 * kz.zentrale.jaeger);
+}
+const kTopfGroesse = i => K.topf + K.tresorPlus * spiel.konzern.f[i].tresor;
+const kAusbauPreis = (st, n = 1) => K.preisStart * Math.pow(K.preisFaktor, st - 1) * (Math.pow(K.preisFaktor, n) - 1) / (K.preisFaktor - 1);
+function kKaufMenge(i) {  // wie viele Stufen gekauft werden (×1, ×10, Max)
+  const st = spiel.konzern.f[i].stufe, m = spiel.konzern.menge;
+  if (m !== 'max') return m;
+  let n = Math.floor(Math.log(1 + spiel.geld * (K.preisFaktor - 1) / (K.preisStart * Math.pow(K.preisFaktor, st - 1))) / Math.log(K.preisFaktor));
+  return Math.max(1, n);
+}
+const kSpezOffen = i => { const f = spiel.konzern.f[i]; return f.spez.length < K.spezStufen.length && f.stufe >= K.spezStufen[f.spez.length]; };
+const kSternBereit = () => spiel.konzern.f.reduce((s, f) => s + (f.leiter ? 0 : Math.floor(f.topf)), 0);
+const kKampagneAbkling = () => K.kampagneAbkling * Math.pow(0.85, spiel.konzern.zentrale.agentur);
+const kKampagneDauer = () => K.kampagneDauer + 15 * spiel.konzern.zentrale.agentur;
+
+// ---------- Aktionen ----------
+function kAusbauen(i) {
+  const f = spiel.konzern.f[i], n = kKaufMenge(i), p = kAusbauPreis(f.stufe, n);
+  if (!bezahlen(p)) return;
+  const vorher = kKonzernMeilen(), selbst = kSelbstMeilen(f.stufe);
+  f.stufe += n;
+  if (kSelbstMeilen(f.stufe) > selbst) meldung(t('k.meilenstein', { n: filialName(i) }));
+  if (kKonzernMeilen() > vorher) meldung(t('k.konzernMeilenstein'));
+}
+function kSterneEinsammeln(nur = -1) {
+  let n = 0;
+  spiel.konzern.f.forEach((f, i) => {
+    if (f.leiter || (nur >= 0 && i !== nur)) return;
+    const k = Math.floor(f.topf); f.topf -= k; n += k;
+  });
+  if (!n) return;
+  spiel.sterne += n; spiel.gesamtSterne += n; spiel.konzern.gesammelt += n;
+  konzern.schwebe.push({ text: `+${n} ★`, i: nur, alter: 0, farbe: '#9ad8ff' });
+}
+function kStarUpgrade(i, art) {
+  const f = spiel.konzern.f[i];
+  const p = art === 'leiter' ? K_LEITER : art === 'tresor' ? kTresorKosten(f.tresor) : kTurboKosten(f.turbo);
+  if ((art === 'leiter' && f.leiter) || spiel.sterne < p) return;
+  spiel.sterne -= p;
+  if (art === 'leiter') { kSterneEinsammeln(i); f.leiter = true; }
+  else f[art]++;
+}
+function kZentraleKaufen(z) {
+  const n = spiel.konzern.zentrale[z.id], p = z.kosten(n);
+  if (n >= z.max || spiel.sterne < p) return;
+  spiel.sterne -= p; spiel.konzern.zentrale[z.id]++;
+}
+function kSpezWaehlen(i, art) { if (kSpezOffen(i)) { spiel.konzern.f[i].spez.push(art); gebaut = ''; } }
+function kKampagneStarten() {
+  const kz = spiel.konzern;
+  if (kz.kampagne.abkling > 0) return;
+  konzern.waehlen = !konzern.waehlen;
+  if (konzern.waehlen) meldung(t('k.kampagneWaehlen'));
+}
+function kKampagneAuf(i) {
+  const kz = spiel.konzern;
+  konzern.waehlen = false;
+  kz.kampagne = { f: i, rest: kKampagneDauer(), abkling: kKampagneAbkling() };
+  kz.kampagnen++;
+  meldung(t('k.kampagneLaeuft', { n: filialName(i) }));
+}
+
+// ---------- Limousine (wie VIP-Kunde) ----------
+let limo = null, naechsteLimo = K.limoSperre;
+function limoUpdate(dt) {
+  if (!limo) {
+    naechsteLimo -= dt * (1 + 0.25 * spiel.konzern.zentrale.chauffeur);
+    if (naechsteLimo <= 0) limo = { phase: 'kommt', x: 0, bleibt: K.limoBleibt };
+    return;
+  }
+  if (limo.phase === 'kommt') { limo.x = Math.min(1, limo.x + dt / 2.5); if (limo.x >= 1) limo.phase = 'wartet'; }
+  else if (limo.phase === 'wartet') { limo.bleibt -= dt; if (limo.bleibt <= 0) limo.phase = 'faehrt'; }
+  else { limo.x += dt / 2.5; if (limo.x >= 2) limoWeg(); }
+}
+function limoWeg() { limo = null; naechsteLimo = K.limoAbstand * (0.6 + Math.random() * 0.8); }
+function limoKlick() {
+  if (!limo || limo.phase !== 'wartet') return;
+  const kz = spiel.konzern, extra = 1 + 0.5 * kz.zentrale.chauffeur, z = Math.random();
+  kz.limos++;
+  if (z < 0.4) {
+    const g = kGesamtProSek() * 120 * extra;
+    spiel.geld += g; spiel.verdient += g; kz.verdient += g;
+    meldung(t('k.limoGeld', { x: zahl(g) }));
+  } else if (z < 0.7) { kz.boost = { art: 'preis', faktor: 5, rest: 30 * extra }; meldung(t('k.limoPreis', { s: Math.round(30 * extra) })); }
+  else { kz.boost = { art: 'turbo', faktor: 2, rest: 30 * extra }; meldung(t('k.limoTurbo', { s: Math.round(30 * extra) })); }
+  limo.phase = 'faehrt';
+}
+
+// ---------- Ablauf pro Bild ----------
+function konzernTick(dt) {
+  const kz = spiel.konzern;
+  if (kz.boost) { kz.boost.rest -= dt; if (kz.boost.rest <= 0) kz.boost = null; }
+  if (kz.kampagne.rest > 0) kz.kampagne.rest = Math.max(0, kz.kampagne.rest - dt);
+  if (kz.kampagne.abkling > 0) kz.kampagne.abkling = Math.max(0, kz.kampagne.abkling - dt);
+  kz.trend.rest -= dt;
+  if (kz.trend.rest <= 0) neuerTrend(true);
+  kz.f.forEach((f, i) => {
+    const runde = kRunde(i);
+    f.t += dt;
+    if (f.t >= runde) {
+      const n = Math.floor(f.t / runde); f.t -= n * runde;
+      const g = kProSek(i) * runde * n;
+      spiel.geld += g; spiel.verdient += g; kz.verdient += g;
+      if (runde >= 0.8) konzern.schwebe.push({ text: '+' + kurz(g) + ' €', i, alter: 0, farbe: '#ffd77a' });
+    }
+    const cap = kTopfGroesse(i);
+    f.topf = Math.min(cap, f.topf + kSternRate(i) * dt);
+    if (f.leiter && f.topf >= 1) { const k = Math.floor(f.topf); f.topf -= k; spiel.sterne += k; spiel.gesamtSterne += k; kz.gesammelt += k; }
+  });
+  limoUpdate(dt);
+  for (const s of konzern.schwebe) s.alter += dt;
+  konzern.schwebe = konzern.schwebe.filter(s => s.alter < 1.4).slice(-20);
+}
+function neuerTrend(melden) {
+  const kz = spiel.konzern, n = kz.f.length;
+  const geld = Math.floor(Math.random() * n);
+  let stern = Math.floor(Math.random() * (n - 1)); if (stern >= geld) stern++;
+  kz.trend = { geld, stern, rest: K.trendDauer };
+  if (melden) meldung(t('k.trendNeu', { a: filialName(geld), b: filialName(stern) }));
+}
+// Offline: Geld pro Sekunde × Zeit, Sterntöpfe füllen sich (bis zur Obergrenze, Filialleiter sammeln ein)
+function konzernOffline() {
+  const kz = spiel.konzern;
+  const weg = Math.min((Date.now() - (spiel.zuletzt || Date.now())) / 1000, offlineStunden() * 3600);
+  if (weg < 60) return;
+  kz.boost = null; kz.kampagne.rest = 0;
+  const g = kGesamtProSek() * weg;
+  spiel.geld += g; spiel.verdient += g; kz.verdient += g;
+  let st = 0;
+  kz.f.forEach((f, i) => {
+    const neu = kSternRate(i) * weg;
+    if (f.leiter) { const k = Math.floor(f.topf + neu); f.topf = (f.topf + neu) - k; st += k; }
+    else f.topf = Math.min(kTopfGroesse(i), f.topf + neu);
+  });
+  spiel.sterne += st; spiel.gesamtSterne += st; kz.gesammelt += st;
+  kz.trend.rest -= weg; if (kz.trend.rest <= 0) neuerTrend(false);
+  kz.kampagne.abkling = Math.max(0, kz.kampagne.abkling - weg);
+  setTimeout(() => meldung(t('k.offline', { z: dauer(weg), x: zahl(g) })), 800);
+}
+
+// ---------- Gründung ----------
 function konzernStarten(test = false) {
-  if (konzern.phase || intro.phase) return;
+  if (konzern.phase || intro.phase || imKonzern()) return;
   if (!test && spiel.sterne < KONZERN_PREIS) return;
   $('menue').classList.remove('offen');
   fensterZu();
@@ -19,15 +221,13 @@ function konzernStarten(test = false) {
   konzern.phase = 'zu'; konzern.t = 0;
   dachP = 0.999;                        // Dach kommt von oben
 }
-
 function konzernUpdate(dt) {
   if (!konzern.phase) return;
   konzern.t += dt;
   if (konzern.phase === 'zu') {
     dachP = Math.max(0, 1 - konzern.t / ZU_DAUER);
     if (dachP <= 0) {
-      // fertiges Laden-Bild mit Dach einfrieren – das wird gleich kleiner
-      zeichnen();
+      zeichnen();   // fertiges Laden-Bild mit Dach einfrieren – das wird gleich kleiner
       const L = layout();
       konzern.bild = document.createElement('canvas');
       konzern.bild.width = cv.width; konzern.bild.height = cv.height;
@@ -40,28 +240,45 @@ function konzernUpdate(dt) {
     intro.phase = 'dialog'; intro.art = 'konzern'; intro.nr = 0; intro.wander = 1;
     const el = $('intro'); el.hidden = false; el.className = 'dialog';
     boxHoeheFestlegen(); textZeigen(0);
-  } else if (konzern.phase === 'auf') {
-    dachP = Math.min(1, konzern.t / DACH_DAUER);
-    if (dachP >= 1) {
-      konzern.phase = null; dachP = 1;
-      document.body.classList.remove('intro', 'konzern');
-    }
   }
 }
-
 function konzernDialogEnde() {
   clearInterval(intro.timer);
   intro.phase = null;
   $('intro').hidden = true;
+  spiel.sterne = Math.max(0, spiel.sterne - KONZERN_PREIS);
+  spiel.konzern = neuerKonzern();
+  neuerTrend(false);
+  spiel.boost = null; vip = null;
+  konzernModusAn();
+  speichern();
+}
+function konzernModusAn() {
   konzern.phase = 'stadt';
-  $('stadtUi').hidden = false;
+  dachP = 0;
+  document.body.classList.remove('intro', 'konzern');
+  document.body.classList.add('konzernModus');
+  tab = 'kfilialen'; gebaut = '';
 }
 
-// Vorschau: zurück in den Laden, Dach fliegt wieder weg
-$('stadtZurueck').addEventListener('click', () => {
-  $('stadtUi').hidden = true;
-  konzern.phase = 'auf'; konzern.t = 0; dachP = 0;
-  groesse();
+// Tippen in der Stadt: Limo, Filiale (Kampagne wählen, Sterne einsammeln, Spezialisierung)
+let kAbb = null;   // Abbildung Welt → Bildschirm (aus stadtRendern)
+cv.addEventListener('click', e => {
+  if (!imKonzern() || konzern.phase !== 'stadt' || !kAbb) return;
+  const rect = cv.getBoundingClientRect();
+  const px = (e.clientX - rect.left) * (cv.width / rect.width), py = (e.clientY - rect.top) * (cv.height / rect.height);
+  const wx = px / kAbb.U - kAbb.lox, wy = py / kAbb.U - kAbb.loy;
+  if (limo && limo.phase === 'wartet' && kAbb.limo && wx > kAbb.limo.x - 6 && wx < kAbb.limo.x + kAbb.limo.w + 6 && wy > kAbb.limo.y - 12 && wy < kAbb.limo.y + kAbb.limo.h + 6) { limoKlick(); return; }
+  const M = stadtMasse();
+  for (let i = 0; i < 5; i++) {
+    const b = blockPos(i, M);
+    if (wx >= b.x && wx <= b.x + BLOCK_W && wy >= b.y && wy <= b.y + BLOCK_H) {
+      if (konzern.waehlen) kKampagneAuf(i);
+      else if (kSpezOffen(i)) { $('menue').classList.add('offen'); tabWaehlen('kfilialen'); gebaut = ''; }
+      else kSterneEinsammeln(i);
+      return;
+    }
+  }
 });
 
 // ---------------------------------------------------------------
@@ -90,15 +307,18 @@ const stadtBild = document.createElement('canvas'), stadtBildCtx = stadtBild.get
 // Zeichnet die Stadt fertig skaliert auf stadtBild (Bildschirmgröße) und liefert die Abbildung Welt → Bildschirm
 function stadtRendern() {
   const M = stadtMasse();
-  const desktop = DESKTOP.matches, oben = desktop ? 70 : 78, unten = desktop ? 80 : 86;
-  const Uc = Math.max(1, Math.min((cv.width - 16) / M.W, (cv.height - oben - unten) / M.H));
+  const desktop = DESKTOP.matches, oben = imKonzern() ? (desktop ? 120 : 136) : (desktop ? 70 : 78), unten = desktop ? 80 : 90;
+  const rechts = desktop && $('menue').classList.contains('offen') ? $('menue').offsetWidth : 0;   // Breitbild: Menü-Leiste rechts
+  const Uc = Math.max(1, Math.min((cv.width - rechts - 16) / M.W, (cv.height - oben - unten) / M.H));
   const alt = [U, lox, loy, rctx];
   U = Uc;
-  lox = Math.round((cv.width / Uc - M.W) / 2 * S) / S;
+  lox = Math.round(((cv.width - rechts) / Uc - M.W) / 2 * S) / S;
   loy = Math.round((oben / Uc + Math.max(0, (cv.height - oben - unten) / Uc - M.H) / 2) * S) / S;
   stadtLw.width = Math.ceil(cv.width / Uc * S) + 2; stadtLw.height = Math.ceil(cv.height / Uc * S) + 2;
   rctx = stadtCtx;
   stadtWelt(M);
+  if (imKonzern() && konzern.phase === 'stadt') konzernOverlay(M);
+  kAbb = { U: Uc, lox, loy, limo: kAbb && kAbb.limoNeu, limoNeu: null };
   stadtBild.width = cv.width; stadtBild.height = cv.height;
   stadtBildCtx.imageSmoothingEnabled = false;
   stadtBildCtx.drawImage(stadtLw, 0, 0, stadtLw.width, stadtLw.height, 0, 0, stadtLw.width * Uc / S, stadtLw.height * Uc / S);
@@ -207,8 +427,8 @@ function hausKlein(x, y, w, h, dach) {   // Nachbarhaus von oben: Satteldach
 }
 // Filiale in der Stadt: Dach wie beim großen Laden, nur klein; mit Namensschild
 function filialHaus(i, bx, by) {
-  const h = STADT_HAEUSER[i], x = bx + h.x, y = by + h.y, frei = i <= spiel.filiale;
-  const hier = i === Math.min(spiel.filiale, STADT_HAEUSER.length - 1);
+  const h = STADT_HAEUSER[i], x = bx + h.x, y = by + h.y, frei = imKonzern() || i <= spiel.filiale;
+  const hier = !imKonzern() && i === Math.min(spiel.filiale, STADT_HAEUSER.length - 1);
   r(x + 1, y + h.h, h.w - 1, 2, 'rgba(20,10,20,.35)');
   if (hier) {   // aktuelle Filiale leuchtet golden
     const a = 0.45 + 0.35 * Math.sin(zeit * 4);
@@ -305,8 +525,10 @@ const BLOCK_MALER = [
     r(fx + 3.5, fy + 3.5 - Math.abs(Math.sin(zeit * 3)), 1, 1, '#e8f4ff');
     filialHaus(4, x - 3, y - 3);
   },
-  // 5 Baustelle: hier entsteht die Konzernzentrale
+  // 5 Baustelle: hier entsteht die Konzernzentrale (wächst mit den Zentrale-Upgrades)
   (x, y, w, h, i) => {
+    const zs = imKonzern() ? Object.values(spiel.konzern.zentrale).reduce((a, b) => a + b, 0) : 0;
+    if (zs > 0) { zentraleGebaeude(x, y, w, h, zs); return; }
     r(x, y, w, h, '#8a6a4a');
     for (let gx = x + 2; gx < x + w; gx += 6) for (let gy = y + 2; gy < y + h; gy += 5) r(gx + (gy % 10 ? 3 : 0), gy, 1, 1, '#7a5a3c');
     for (let zx = x; zx < x + w; zx += 3) { r(zx, y, 1.5, 1, '#f0c050'); r(zx, y + h - 1, 1.5, 1, '#f0c050'); }
@@ -319,3 +541,167 @@ const BLOCK_MALER = [
     text(t('konzern.baustelle'), x + w / 2, y + 8, 3.2, '#ffd77a', '#1d1219');
   },
 ];
+
+// Konzernzentrale: Rohbau → Glasfassade → mit Gold (nach Anzahl gekaufter Zentrale-Stufen)
+function zentraleGebaeude(x, y, w, h, zs) {
+  r(x, y, w, h, '#9a9aa2');
+  for (let gx = x; gx < x + w; gx += 8) r(gx, y, P, h, '#8a8a92');
+  const gw = 54, gh = 36, gx = Math.round(x + (w - gw) / 2), gy = y + 6;
+  const glas = zs >= 8, gold = zs >= 20;
+  r(gx + 1, gy + gh, gw - 1, 2, 'rgba(20,10,20,.35)');
+  r(gx - 1, gy - 1, gw + 2, gh + 2, F_BASIS.umriss);
+  r(gx, gy, gw, gh, glas ? '#4a6a8a' : '#b8b4bc');
+  if (glas) { for (let px = gx + 3; px < gx + gw - 2; px += 6) r(px, gy + 2, 4, gh - 4, '#6a9ac0'); r(gx, gy, gw, 2, '#9ad0e8'); }
+  else for (let py = gy + 6; py < gy + gh; py += 6) r(gx, py, gw, P, '#8a8690');
+  if (gold) { r(gx, gy, gw, 1.5, '#f0c050'); r(gx, gy + gh - 1.5, gw, 1.5, '#f0c050'); }
+  // Hubschrauber-Landeplatz ab ganz ausgebaut, sonst Kran
+  if (zs < 20) {
+    const kx = gx + gw - 6, ky = gy + 6, wink = Math.sin(zeit * 0.4) * 0.6 + 2.6;
+    for (let s = 0; s < 22; s++) r(kx + Math.cos(wink) * s, ky + Math.sin(wink) * s, 1.5, 1.5, s % 4 < 2 ? '#f0c050' : '#2a2430');
+  } else { r(gx + gw / 2 - 6, gy + gh / 2 - 6, 12, 12, '#2a2430'); text('H', gx + gw / 2, gy + gh / 2, 5, '#ffd77a', '#1d1219'); }
+  const name = t('konzern.zentrale'), g = 3.2, bw = Math.ceil(webBreite(name, g) + 5);
+  const sx = Math.round(gx + gw / 2 - bw / 2), sy = gy + gh + 2;
+  r(sx - P, sy - P, bw + 2 * P, 6 + 2 * P, F_BASIS.umriss); r(sx, sy, bw, 6, '#3d2450');
+  text(name, gx + gw / 2, sy + 3, g, '#ffd77a', '#1d1219');
+}
+
+// Anzeigen über den Filialen: Rundenbalken, Stufe, Sterne, Trends, Kampagne, Limo, schwebende Beträge
+function konzernOverlay(M) {
+  const kz = spiel.konzern;
+  kz.f.forEach((f, i) => {
+    const b = blockPos(i, M), h = STADT_HAEUSER[i], x = b.x + h.x, y = b.y + h.y;
+    // Kampagne / Auswahl
+    if (kz.kampagne.f === i && kz.kampagne.rest > 0) {
+      const a = 0.5 + 0.4 * Math.sin(zeit * 6);
+      r(x - 3, y - 3, h.w + 6, h.h + 6, `rgba(240,140,60,${a})`);
+    } else if (konzern.waehlen) r(x - 3, y - 3, h.w + 6, h.h + 6, `rgba(255,255,255,${0.35 + 0.3 * Math.sin(zeit * 6)})`);
+    // Rundenbalken unter dem Namensschild
+    const runde = kRunde(i), anteil = runde < 0.4 ? 1 : f.t / runde;
+    const by = y + h.h + 10;
+    r(x - P, by - P, h.w + 2 * P, 2 + 2 * P, F_BASIS.umriss);
+    r(x, by, h.w, 2, '#3a2430');
+    r(x, by, h.w * anteil, 2, runde < 0.4 ? `hsl(45,90%,${55 + 15 * Math.sin(zeit * 10)}%)` : '#ffd77a');
+    // Stufe oben links
+    const st = String(f.stufe), sw = webBreite(st, 3.2) + 4;
+    r(x - 2 - P, y - 3 - P, sw + 2 * P, 6 + 2 * P, F_BASIS.umriss); r(x - 2, y - 3, sw, 6, '#2a2430');
+    text(st, x - 2 + sw / 2, y, 3.2, '#ffd77a', null);
+    // Trends
+    let tx = x + sw + 1;
+    for (const [art, farbe, zeichen] of [['geld', '#3a9a4a', '€×3'], ['stern', '#3a6ac0', '★×3']]) {
+      if (kz.trend[art] !== i) continue;
+      const tw = webBreite(zeichen, 3) + 4;
+      r(tx - P, y - 3 - P, tw + 2 * P, 6 + 2 * P, F_BASIS.umriss); r(tx, y - 3, tw, 6, farbe);
+      text(zeichen, tx + tw / 2, y, 3, '#ffffff', null); tx += tw + 2;
+    }
+    if (kz.kampagne.f === i && kz.kampagne.rest > 0) {
+      const tw = webBreite('×3', 3) + 4;
+      r(tx - P, y - 3 - P, tw + 2 * P, 6 + 2 * P, F_BASIS.umriss); r(tx, y - 3, tw, 6, '#d06a2a');
+      text('×3', tx + tw / 2, y, 3, '#ffffff', null);
+    }
+    // Sternentopf / Filialleiter / Spezialisierung offen
+    const bx = x + h.w - 4, byy = y - 6;
+    if (kSpezOffen(i)) kBlase(bx - 12, byy, '!', '#ffd77a', '#8a2a2a', true);
+    if (f.leiter) { r(bx + 1 - P, y + h.h - 7 - P, 6 + 2 * P, 6 + 2 * P, F_BASIS.umriss); r(bx + 1, y + h.h - 7, 6, 6, '#3a6ac0'); text('L', bx + 4, y + h.h - 4, 3.2, '#ffffff', null); }
+    else if (f.topf >= 1) kBlase(bx, byy, '★' + Math.floor(f.topf), '#cfe8ff', '#1a3a7a', f.topf >= kTopfGroesse(i));
+  });
+  // Limousine: fährt auf der Straße unter der Zentrale vor, wartet, fährt weiter
+  kAbb && (kAbb.limoNeu = null);
+  if (limo) {
+    const z = blockPos(5, M), ly = z.y + BLOCK_H + STRASSE / 2 - 2.5, lw = 24, lh = 6;
+    const stopp = z.x + BLOCK_W / 2 - lw / 2;
+    const e = limo.x <= 1 ? 1 - Math.pow(1 - limo.x, 2) : (limo.x - 1) * (limo.x - 1);
+    const lx = limo.x <= 1 ? -30 + (stopp + 30) * e : stopp + (M.W + 40 - stopp) * e;
+    stretchLimo(lx, ly, lw, lh, limo.phase === 'wartet');
+    kAbb.limoNeu = { x: lx, y: ly, w: lw, h: lh };
+  }
+  // schwebende Beträge
+  for (const s of konzern.schwebe) {
+    const i = s.i >= 0 ? s.i : 5, b = blockPos(i, M), h = STADT_HAEUSER[Math.min(i, 4)];
+    const cx = b.x + (s.i >= 0 ? h.x + h.w / 2 : BLOCK_W / 2), cy = b.y + (s.i >= 0 ? h.y + h.h / 2 : BLOCK_H / 2) - s.alter * 10;
+    text(s.text, cx, cy, 3.6, s.farbe, '#1d1219');
+  }
+}
+function kBlase(x, y, txt, farbe, schrift, puls) {
+  const g = 3.4, w = webBreite(txt, g) + 5, hh = 7, dy = puls ? Math.sin(zeit * 6) * 0.8 : 0;
+  r(x - w / 2 - P, y - P + dy, w + 2 * P, hh + 2 * P, F_BASIS.umriss);
+  r(x - w / 2, y + dy, w, hh, farbe);
+  r(x - 1, y + hh + dy, 2, 1.5, F_BASIS.umriss);
+  text(txt, x, y + hh / 2 + dy, g, schrift, null);
+}
+function stretchLimo(x, y, w, h, wartet) {
+  r(x + 1, y + h, w - 1, 1.5, 'rgba(20,10,20,.4)');
+  r(x - P, y - P, w + 2 * P, h + 2 * P, F_BASIS.umriss);
+  r(x, y, w, h, '#1d1a22'); r(x, y, w, 1, '#4a4652');
+  r(x + w - 5, y + 1, 3, h - 2, '#6a8aa8');            // Frontscheibe (fährt nach rechts)
+  for (let px = x + 5; px < x + w - 7; px += 4) r(px, y + 1.5, 2.5, h - 3, '#3a4a5a');   // Seitenfenster
+  r(x + 2, y + 1, 1.5, h - 2, '#6a8aa8');                // Heckscheibe
+  r(x + w - P, y + 1, P, 1, '#fff3b0'); r(x + w - P, y + h - 2, P, 1, '#fff3b0');   // Scheinwerfer
+  // Krone über dem Dach (wippt, solange sie wartet)
+  const kx = x + w / 2 - 3.5, ky = y - 7 + (wartet ? Math.sin(zeit * 5) * 0.8 : 0);
+  r(kx - P, ky + 1 - P, 7 + 2 * P, 4 + 2 * P, F_BASIS.umriss);
+  r(kx, ky + 2, 7, 3, '#f0c050'); r(kx, ky + 1, 1.5, 1.5, '#f0c050'); r(kx + 2.75, ky, 1.5, 2, '#f0c050'); r(kx + 5.5, ky + 1, 1.5, 1.5, '#f0c050');
+  r(kx + 3, ky + 3, 1, 1, '#d04a4a');
+}
+
+// ---------- Menü-Einträge im Konzern ----------
+const kName = i => filialName(i);
+function konzernEintraege(tab) {
+  const kz = spiel.konzern;
+  if (tab === 'ksterne') {
+    return [{ key: 'ks-info', icon: 'stern', titel: t('ks.titel'), infoKachel: true, info: t('ks.info') }].concat(kz.f.map((f, i) => {
+      const tr = kTresorKosten(f.tresor), tu = kTurboKosten(f.turbo);
+      const proStern = 1 / kSternRate(i) / 60;
+      return { key: 'ks-' + i, icon: 'laden', titel: kName(i),
+        info: t('ks.zeile', { a: Math.floor(f.topf), b: kTopfGroesse(i), m: komma(proStern), x: Math.pow(2, f.turbo) }),
+        knoepfe: [
+          { text: f.leiter ? t('ks.leiterDa') : t('ks.leiter', { n: K_LEITER }), aus: f.leiter || spiel.sterne < K_LEITER, gewaehlt: f.leiter, tun: () => kStarUpgrade(i, 'leiter') },
+          { text: t('ks.tresor', { n: tr }), aus: spiel.sterne < tr, tun: () => kStarUpgrade(i, 'tresor') },
+          { text: t('ks.turbo', { n: tu }), aus: spiel.sterne < tu, tun: () => kStarUpgrade(i, 'turbo') },
+        ] };
+    }));
+  }
+  if (tab === 'kzentrale') {
+    const zs = Object.values(kz.zentrale).reduce((a, b) => a + b, 0), zmax = K_ZENTRALE.reduce((a, z) => a + z.max, 0);
+    return [{ key: 'kz-info', icon: 'manager', titel: t('kz.titel'), infoKachel: true, info: t('kz.info', { a: zs, b: zmax }) }].concat(K_ZENTRALE.map(z => {
+      const n = kz.zentrale[z.id], max = n >= z.max, p = z.kosten(n);
+      return { key: 'kz-' + z.id, icon: z.icon, titel: t('kz.' + z.id), info: t('upg.stufe', { s: n }) + ' · ' + t('kz.' + z.id + 'Info'),
+               knopf: max ? t('max') : p + ' ★', aus: max || spiel.sterne < p, tun: () => kZentraleKaufen(z) };
+    }));
+  }
+  // Filialen: Übersicht + Kaufmenge, offene Spezialisierungen, Ausbau
+  const minSt = kMinStufe(), naechsterKM = K.konzernMeilensteine.find(m => minSt < m);
+  const liste = [{ key: 'kf-info', icon: 'verkauf', titel: t('kf.titel', { x: kurz(kGesamtProSek()) }), infoKachel: true,
+    info: naechsterKM ? t('kf.konzernMeilenstein', { n: naechsterKM }) : t('kf.alleMeilensteine'),
+    knoepfe: [1, 10, 'max'].map(m => ({ text: m === 'max' ? 'Max' : '×' + m, gewaehlt: kz.menge === m, tun: () => { kz.menge = m; } })) }];
+  kz.f.forEach((f, i) => {
+    if (!kSpezOffen(i)) return;
+    liste.push({ key: 'kp-' + i, icon: 'stern', klasse: 'konzernkarte', titel: t('kp.titel', { n: kName(i) }), info: t('kp.info', { s: K.spezStufen[f.spez.length] }),
+      knoepfe: ['umsatz', 'prestige', 'tempo'].map(a => ({ text: t('kp.' + a), tun: () => kSpezWaehlen(i, a) })) });
+  });
+  kz.f.forEach((f, i) => {
+    const n = kKaufMenge(i), p = kAusbauPreis(f.stufe, n), nm2 = K.meilensteine.find(m => f.stufe < m);
+    const spez = f.spez.length ? ' · ' + f.spez.map(a => t('kp.kurz.' + a)).join(', ') : '';
+    liste.push({ key: 'kf-' + i, icon: 'laden', titel: t('kf.filiale', { n: kName(i), s: f.stufe }),
+      info: t('kf.zeile', { x: kurz(kProSek(i)), r: sek(kRunde(i)), m: nm2 || '–' }) + spez,
+      knopf: (n > 1 ? '×' + n + ' · ' : '') + kurz(p) + ' €', aus: spiel.geld < p, tun: () => kAusbauen(i) });
+  });
+  return liste;
+}
+
+// ---------- Anzeigen unten / Trend ----------
+const mmss = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+function konzernHud() {
+  const kz = spiel.konzern, bereit = kSternBereit();
+  $('kSternLabel').textContent = bereit ? t('k.einsammeln', { n: bereit }) : t('k.keineSterne');
+  $('kSternBtn').disabled = !bereit;
+  $('kSternBtn').classList.toggle('bereit', bereit > 0);
+  const kp = kz.kampagne;
+  $('kWerbLabel').textContent = konzern.waehlen ? t('k.werbWaehlen') : kp.rest > 0 ? t('k.werbLaeuft', { z: mmss(kp.rest) })
+    : kp.abkling > 0 ? t('k.werbPause', { z: mmss(kp.abkling) }) : t('k.werbung');
+  $('kWerbBtn').disabled = kp.abkling > 0 && !konzern.waehlen;
+  $('kWerbBtn').classList.toggle('aktiv', konzern.waehlen);
+  $('trendTxt').textContent = t('k.trend', { a: kName(kz.trend.geld), b: kName(kz.trend.stern), z: mmss(kz.trend.rest) });
+  $('menueBtn').hidden = false;
+}
+$('kSternBtn').addEventListener('click', () => kSterneEinsammeln());
+$('kWerbBtn').addEventListener('click', () => kKampagneStarten());

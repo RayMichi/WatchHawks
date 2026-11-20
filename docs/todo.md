@@ -73,21 +73,25 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [x] Laden-Reiter (und Umzugs-Anzeige) erscheinen, sobald alle 4 Mitarbeiter eingestellt sind **oder** 8.000 € verdient sind
 - [x] Frühphase schneller: Taucheruhr 20 € statt 12 € (Freischalten 80 €), erster Stern bleibt bei 10.000 € → Hinterhof 1. Stern nach ~20 statt ~24–27 min (Schwelle 6.000 € getestet und verworfen, blähte das Spätspiel auf)
 - [x] Ruf-Shop: Raritäten-Auktion raus, dafür 4 „treue Mitarbeiter“ (je 5 ★): der gewählte Mitarbeiter behält beim Umzug seine Stufe
-- [x] **Konzern, Schritt 1 (Vorschau):** lila Kachel „Konzern gründen“ (50 freie ★) im Ruf-Reiter → Dach legt sich auf den Laden → Zoom raus auf die Stadt mit allen 5 Filialen + Baustelle „Zentrale“ → Lisa (3 Texte) → Stadtansicht mit „Zurück in den Laden“. Test-Link: `?stadt` am Ende der Adresse
+- [x] **Konzern, Schritt 1 (Vorschau):** lila Kachel „Konzern gründen“ (50 freie ★) im Ruf-Reiter → Dach legt sich auf den Laden → Zoom raus auf die Stadt mit allen 5 Filialen + Baustelle „Zentrale“ → Lisa (3 Texte) (Vorschau, inzwischen ersetzt durch das Konzern-Gameplay)
 - [x] Eigene Dächer für Einkaufszentrum (Flachdach mit Oberlichtern), Hauptstraße (dunkel mit Gold), Prachtstraße (lila mit Gold)
 - [x] Umgebung jeder Filiale im Stil der Stadtansicht: Hinterhof (Hof, Nachbarhäuser, Mülltonnen), Fußgängerzone (Pflaster, Bänke, Passanten, keine Straße), Einkaufszentrum (Flachdächer, Parkplatz), Hauptstraße (Steinplatten, roter Teppich, elegante Häuser), Prachtstraße (Rasen, Springbrunnen, Allee, Villen); Straßen mit fahrenden Autos
 - [x] **Spielstände sichern:** Export/Import als Code in Einstellungen → Allgemein (für alle, ~600 Zeichen, komprimiert); mit `?dev` Test-Werkzeuge: 3 Speicherplätze, Vorlagen (Neu ohne Intro, Hinterhof fast fertig, 2. Laden, Prachtstraße mit 60 ★), Schummel-Knöpfe (€ ×10, +10 ★, +50 ★, alle Reiter)
+- [x] **Konzern-Gameplay (Test-Fassung):** Gründung behält € und ★, Stadt ist das Spiel; 5 Filialen laufen automatisch in Runden (klein oft/groß selten, gleich viel pro Sekunde), Ausbau mit € (×1/×10/Max), Meilensteine, Spezialisierung (Umsatz/Prestige/Tempo), Sternentöpfe + Knopf „Sterne“, Sterne-Upgrades (Filialleiter, Tresor, Turbo), Zentrale (Marketing, Presse, Fuhrpark, Werbeagentur), Trends alle 10 min, Werbekampagne, Limousine mit Krone, Offline, Konzern-Erfolge als eigener Reiter
 - [x] Meldungen oben unter der Geld-Anzeige statt unten (verdecken am Handy nicht mehr den VIP bei offenem Upgrade-Menü)
 - [x] Spiel heißt jetzt **WatchHawks**; Versionsverwaltung auf GitHub (RayMichi/WatchHawks), Claude lädt jede Änderung hoch, spielbar über GitHub Pages (läuft, von Michi am Handy getestet)
 
 ## Als Nächstes
-- [ ] **Konzern, Schritt 2:** 50 ★ wirklich abziehen, Reset (Sterne, Ruf-Shop, zurück in den Hinterhof), Aktien als Dauerbonus, Konzern-Mechanik in der Stadt (passives Einkommen pro Filiale, Konzern-Upgrades, neue Grundstücke, Zentrale fertig bauen), Filiale antippen → Laden spielen
+- [ ] **Michi testet den Konzern** (Vorlage „Konzern läuft“ mit `?dev`): Tempo ok? Sterne zu langsam/schnell? Spezialisierungen spürbar? Limo-Belohnung?
+- [ ] **Konzern-Reset mit Gems:** ganz von vorne (Hinterhof), neuer Knopf neben „Upgrades“ mit Gem-Netz (erster Punkt z. B. +500 % Grundverdienst), Gems nach verdientem Geld? – Werte testen
+- [ ] Konzern: Läden sollen mal für Geld, mal für Sterne lukrativer sein – Trends + Spezialisierung sind der erste Schritt, evtl. eigene Stärken pro Filiale
+- [ ] Lieferkette (Filialen helfen sich gegenseitig) – zurückgestellt
 - [ ] **Balancing Spätspiel:** Frühphase seit 19.11. kürzer (Taucheruhr 20 €), ab der Prachtstraße explodieren Sterne/Geld aber weiterhin (4 h: 1.169 ★, 29 → 68 → 116 ★ pro Laden) → Spätspiel ist nach wenigen Minuten maximiert, braucht Inhalt/Bremse
 - [ ] Michi testet Figuren/Uhren C im Spiel (Brille im Editor ok? Zeiger lesbar?)
 - [ ] Evtl. Uhren pro Modell unterscheidbarer machen (Details aus Vorschlag B, z. B. Drehring beim Taucher)
 - [ ] Michi testet das neue Prestige-Gefühl (2. Laden immer noch zäh?)
 - [ ] Spätspiel-Inhalt: ab Filiale 2–3 ist der Laden nach ~1 h maximiert → mehr Modelle/Produkte oder Juwelierkette
-- [ ] Verkaufsoffensive (aktive Fähigkeit mit Abklingzeit)
+- [ ] Verkaufsoffensive im Ladenspiel (im Konzern gibt es jetzt die Werbekampagne)
 - [ ] Michi testet: treue Mitarbeiter für 5 ★ zu billig/teuer? (Verkäuferin auf Stufe 15 mitnehmen ist sehr stark)
 - [ ] Balancing der Mitarbeiter testen (Preise, Tempo) – Michi testet die neue, langsame Verkäuferin
 - [ ] Michi testet: Preis vom 2. Packtisch (4.000 €) okay? Danach ist evtl. Verkaufen/Lager der neue Engpass

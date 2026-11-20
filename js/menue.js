@@ -7,6 +7,7 @@ let tab = 'ausruestung', gebaut = '', resetGeklickt = false;
 const komma = z => z.toLocaleString(LOCALE(), { maximumFractionDigits: 1 });
 
 function eintraege() {
+  if (tab[0] === 'k' && imKonzern()) return konzernEintraege(tab);
   if (tab === 'uhren') {
     const naechstes = MODELLE.find(m => !spiel.modelle.includes(m.id));
     return MODELLE.filter(m => spiel.modelle.includes(m.id) || m === naechstes).map(m => {
@@ -105,13 +106,14 @@ function eintraege() {
 function menueAktualisieren() {
   if (!$('menue').classList.contains('offen')) return;
   const liste = eintraege();
-  const aufbau = tab + SPRACHE + liste.map(e => e.key + !!e.knopf).join();
+  const aufbau = tab + SPRACHE + liste.map(e => e.key + !!e.knopf + (e.knoepfe ? e.knoepfe.length : '')).join();
   if (aufbau !== gebaut) {
     $('inhalt').innerHTML = liste.map(e => `
-      <div class="karte${e.infoKachel ? ' infokarte' : ''}${e.klasse ? ' ' + e.klasse : ''}">
+      <div class="karte${e.infoKachel ? ' infokarte' : ''}${e.klasse ? ' ' + e.klasse : ''}${e.knoepfe ? ' mehrknopf' : ''}">
         <div class="kinfo"><i class="kicon">${e.icon ? iconSvg(e.icon) : ''}</i>
           <div class="ktext"><b id="t-${e.key}"></b><div class="klein" id="i-${e.key}"></div></div></div>
         ${e.knopf ? `<button data-key="${e.key}" id="b-${e.key}"></button>` : ''}
+        ${e.knoepfe ? `<div class="knoepfe">${e.knoepfe.map((_, n) => `<button data-key="${e.key}#${n}" id="b-${e.key}#${n}"></button>`).join('')}</div>` : ''}
       </div>`).join('');
     gebaut = aufbau;
   }
@@ -119,6 +121,7 @@ function menueAktualisieren() {
     $('t-' + e.key).textContent = e.titel; $('t-' + e.key).title = e.titel;
     $('i-' + e.key).textContent = e.info;
     if (e.knopf) { $('b-' + e.key).textContent = e.knopf; $('b-' + e.key).disabled = !!e.aus; $('b-' + e.key).classList.toggle('gewaehlt', !!e.gewaehlt); }
+    if (e.knoepfe) e.knoepfe.forEach((k, n) => { const b = $('b-' + e.key + '#' + n); b.textContent = k.text; b.disabled = !!k.aus; b.classList.toggle('gewaehlt', !!k.gewaehlt); });
   }
 }
 
@@ -134,9 +137,10 @@ function knoepfeAktualisieren() {
   $('umzugFill').style.width = Math.min(100, anteil * 100) + '%';
   $('umzugNaechster').textContent = t('umzug.naechster', { x: zahl(schwelle) });
   $('umzugBox').classList.toggle('bereit', jetzt > 0);
-  const b = spiel.boost;
+  const b = imKonzern() ? spiel.konzern.boost : spiel.boost;
   $('boostBox').hidden = !b;
-  $('vipBtn').hidden = !vip;
+  $('vipBtn').hidden = imKonzern() ? !(limo && limo.phase === 'wartet') : !vip;
+  if (imKonzern()) konzernHud();
   if (b) $('boostTxt').textContent = `${t('boost.' + b.art)} · ${Math.ceil(b.rest)} s`;
   $('bauBtn').disabled = spiel.werkbank.fertig;
   $('polBtn').disabled = !spiel.polier || spiel.polier.fertig;
@@ -156,8 +160,10 @@ document.addEventListener('click', e => {
   const b = e.target.closest('button');
   if (!b) return;
   if (b.dataset.key) {
-    const eintrag = eintraege().find(x => x.key === b.dataset.key);
-    if (eintrag && eintrag.tun) eintrag.tun();
+    const [key, n] = b.dataset.key.split('#');
+    const eintrag = eintraege().find(x => x.key === key);
+    if (eintrag && n != null && eintrag.knoepfe) eintrag.knoepfe[+n].tun();
+    else if (eintrag && eintrag.tun) eintrag.tun();
   }
   if (b.dataset.tab) tabWaehlen(b.dataset.tab);
   menueAktualisieren();
@@ -191,13 +197,17 @@ const REITER_FREI = {
   laden: () => alleMitarbeiter() || spiel.rundeVerdient >= LADEN_TAB_AB,
   ruf:   () => spiel.filiale > 0
 };
-const reiterSichtbar = name => name === 'ausruestung' || (name === 'manager' ? !!spiel.upg.manager : !!spiel.tabFrei[name]);
+const reiterSichtbar = name => {
+  if (imKonzern()) return name[0] === 'k';
+  if (name[0] === 'k') return false;
+  return name === 'ausruestung' || (name === 'manager' ? !!spiel.upg.manager : !!spiel.tabFrei[name]);
+};
 function reiterAktualisieren() {
   for (const k in REITER_FREI) if (!spiel.tabFrei[k] && REITER_FREI[k]()) spiel.tabFrei[k] = true;
   let neu = false;
   for (const b of document.querySelectorAll('#reiter [data-tab]')) {
     const name = b.dataset.tab, sichtbar = reiterSichtbar(name);
-    const stern = sichtbar && name !== 'ausruestung' && !spiel.tabGesehen[name];
+    const stern = sichtbar && name !== 'ausruestung' && name[0] !== 'k' && !spiel.tabGesehen[name];
     b.hidden = !sichtbar;
     b.classList.toggle('neu', stern);
     const s = b.querySelector('.tabStern'); if (s) s.hidden = !stern;
@@ -207,12 +217,12 @@ function reiterAktualisieren() {
   if (!spiel.tabGesehen.menue && !spiel.tabFrei.uhren) neu = true;
   $('menueStern').hidden = !neu;
   $('menueBtn').classList.toggle('neu', neu);
-  $('umzugBox').hidden = !reiterSichtbar('laden');
-  if (!reiterSichtbar(tab)) tabWaehlen('ausruestung');
+  $('umzugBox').hidden = imKonzern() || !reiterSichtbar('laden');
+  if (!reiterSichtbar(tab)) tabWaehlen(imKonzern() ? 'kfilialen' : 'ausruestung');
 }
 function tabWaehlen(name) {
   tab = name;
-  if (!spiel.tabGesehen[name] && name !== 'ausruestung') { spiel.tabGesehen[name] = true; speichern(); reiterAktualisieren(); }
+  if (!spiel.tabGesehen[name] && name !== 'ausruestung' && name[0] !== 'k') { spiel.tabGesehen[name] = true; speichern(); reiterAktualisieren(); }
   for (const t of document.querySelectorAll('[data-tab]')) t.classList.toggle('aktiv', t.dataset.tab === name);
 }
 // Eigene Klicks zählen (für den Erfolg "Fleißige Hände")
@@ -252,21 +262,32 @@ for (const id of ['erfolgeFenster', 'einstFenster'])
 // ERFOLGE-FENSTER
 // ===============================================================
 let erfolgeGebaut = '';
+let erfolgTab = 'laden';
 function erfolgeAktualisieren() {
-  const summeStufen = ERFOLGE.reduce((s, e) => s + gesammelt(e), 0);
-  const bereit = ERFOLGE.filter(e => erreicht(e) > gesammelt(e)).length;
-  $('erfolgeZahl').textContent = summeStufen + '/' + ERFOLG_STUFEN_GESAMT;
+  const bereitIn = liste => liste.filter(e => erreicht(e) > gesammelt(e)).length;
+  const bereit = bereitIn(alleErfolge());
   $('erfolgeBtn').classList.toggle('neu', bereit > 0);
   $('erfolgeBadge').textContent = bereit;
+  $('erfolgReiter').hidden = !imKonzern();
+  if (!imKonzern()) erfolgTab = 'laden';
+  const ERF = erfolgTab === 'konzern' ? K_ERFOLGE : ERFOLGE, GESAMT = erfolgTab === 'konzern' ? K_ERFOLG_STUFEN : ERFOLG_STUFEN_GESAMT;
+  const summeStufen = ERF.reduce((s, e) => s + gesammelt(e), 0);
+  $('erfolgeZahl').textContent = summeStufen + '/' + GESAMT;
   if (!$('erfolgeFenster').classList.contains('offen')) return;
+  if (imKonzern()) {
+    const bl = bereitIn(ERFOLGE), bk = bereitIn(K_ERFOLGE);
+    $('ebLaden').textContent = bl; $('ebLaden').hidden = !bl;
+    $('ebKonzern').textContent = bk; $('ebKonzern').hidden = !bk;
+    for (const b of document.querySelectorAll('[data-etab2]')) b.classList.toggle('aktiv', b.dataset.etab2 === erfolgTab);
+  }
 
-  $('erfolgeBonus').textContent = t('erfolge.stand', { a: summeStufen, b: ERFOLG_STUFEN_GESAMT });
+  $('erfolgeBonus').textContent = t('erfolge.stand', { a: summeStufen, b: GESAMT });
   if (boniOffen) { boniAktualisieren(); return; }
 
   // Liste nur neu bauen, wenn sich ein Status ändert (sonst gehen Klicks verloren)
-  const aufbau = SPRACHE + ERFOLGE.map(e => gesammelt(e) + ':' + Math.min(erreicht(e), gesammelt(e) + 1)).join();
+  const aufbau = SPRACHE + erfolgTab + ERF.map(e => gesammelt(e) + ':' + Math.min(erreicht(e), gesammelt(e) + 1)).join();
   if (aufbau !== erfolgeGebaut) {
-    $('erfolgeListe').innerHTML = ERFOLGE.map(e => {
+    $('erfolgeListe').innerHTML = ERF.map(e => {
       const k = gesammelt(e), alle = k >= e.stufen.length, kannSammeln = !alle && erreicht(e) > k;
       const st = alle ? 'fertig' : kannSammeln ? 'bereit' : 'offen';
       const punkte = e.stufen.map((_, i) => `<span class="punkt ${i < k ? 'voll' : i === k && kannSammeln ? 'bereit' : ''}"></span>`).join('');
@@ -288,7 +309,7 @@ function erfolgeAktualisieren() {
     }).join('');
     erfolgeGebaut = aufbau;
   }
-  for (const e of ERFOLGE) {
+  for (const e of ERF) {
     const k = gesammelt(e);
     if (k >= e.stufen.length || erreicht(e) > k) continue;
     const ziel = e.stufen[k].ziel, jetzt = e.wert();
@@ -329,6 +350,10 @@ $('erfolgeListe').addEventListener('click', e => {
   if (b) { erfolgEinsammeln(b.dataset.sammeln); erfolgeAktualisieren(); }
 });
 $('erfolgeBtn').addEventListener('click', () => { $('erfolgeFenster').classList.add('offen'); boniUmschalten(false); });
+$('erfolgReiter').addEventListener('click', e => {
+  const b = e.target.closest('[data-etab2]');
+  if (b) { erfolgTab = b.dataset.etab2; erfolgeGebaut = ''; erfolgeAktualisieren(); }
+});
 $('erfolgeZu').addEventListener('click', () => $('erfolgeFenster').classList.remove('offen'));
 
 // ===============================================================
@@ -376,7 +401,7 @@ function prestigeKlick() {
   gebaut = '';
 }
 
-$('vipBtn').addEventListener('click', vipKlick);
+$('vipBtn').addEventListener('click', () => imKonzern() ? limoKlick() : vipKlick());
 // VIP anklicken: Klick auf die Szene prüfen
 cv.addEventListener('pointerdown', e => {
   if (!vip) return;

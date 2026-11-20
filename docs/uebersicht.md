@@ -1,7 +1,7 @@
 # WatchHawks – Variablen & Upgrade-Logik
 
 Spielname: **WatchHawks** (früher „Juwelier Idle“; seit 18.11.2026).
-Stand: 19.11.2026 · Spielen: https://raymichi.github.io/WatchHawks/ · Code: https://github.com/RayMichi/WatchHawks · Claude-Test-Link: https://claude.ai/artifact/HZfx7nf5gTeKaN2UrTenUh
+Stand: 20.11.2026 · Spielen: https://raymichi.github.io/WatchHawks/ · Code: https://github.com/RayMichi/WatchHawks · Claude-Test-Link: https://claude.ai/artifact/HZfx7nf5gTeKaN2UrTenUh
 **Ablauf bei Änderungen:** Claude testet, schreibt in Michis Ordner, lädt zu GitHub hoch (Pages aktualisiert sich nach 1–2 min) und aktualisiert den Claude-Link. Spielstände liegen nur im Browser des jeweiligen Geräts (localStorage `juwelierIdle-v2`), jede Adresse hat ihren eigenen. Safari löscht sie nach ~7 Tagen ohne Besuch, außer das Spiel liegt auf dem Home-Bildschirm.
 Sicherung der Pixel-Version vor der doppelten Auflösung: Ordner `juwelier-idle-versionen/pixel-stil` · Link: https://claude.ai/artifact/BAQu1ubJX6CXpqWYi2khqE
 
@@ -21,14 +21,51 @@ Sicherung der Pixel-Version vor der doppelten Auflösung: Ordner `juwelier-idle-
 **Dächer pro Filiale** (`DACH_STILE`): Hinterhof = rote Tonziegel; Fußgängerzone = blaugrauer Schiefer mit kleineren Platten, zwei Dachgauben mit warmem Licht und Blumenkästen, Kupfer-Regenrinne; Einkaufszentrum, Hauptstraße, Prachtstraße siehe Konzern. Das Schild auf dem Dach zeigt im Intro „WatchHawks“, beim Umzug den Namen der neuen Filiale.
 Auch Leertaste/Enter blättern weiter; die Spiel-Tasten 1–4 sind im Intro gesperrt. Gespeichert als `introGesehen` (bleibt). Alte Spielstände ohne das Feld sehen kein Intro, „Spielstand löschen“ zeigt es wieder. Texte: `intro.*` in sprache.js.
 
-## Konzern (js/konzern.js) – Schritt 1: Vorschau (seit 19.11.)
-Zweite Prestige-Ebene, entschieden mit Michi: **mit Reset (Variante A)**, kostet **50 freie Ruf-Sterne** (`KONZERN_PREIS`, wirklich bezahlt), Belohnung später **Aktien** als Dauerbonus. Gebaut wird in Etappen.
-- **Kachel:** im Ruf-Reiter direkt unter der Info-Kachel, lila (`klasse: 'konzernkarte'`), Knopf „50 ★“, zweimal klicken („Wirklich gründen?“). Grau, solange weniger als 50 freie ★ da sind („Braucht 50 freie ★ (du hast X)“).
-- **Ablauf:** Menü zu, Anzeigen weg → das Dach der aktuellen Filiale legt sich in 1 s von oben auf den Laden → das Bild mit Dach wird eingefroren und schrumpft in 2,2 s auf das Gebäude in der Stadt, die Stadt kommt dabei von groß auf normal (Kamera-Zoom, die Umgebung des Ladens blendet in den ersten 30 % aus) → Lisa, 3 Texte (`konzern.text1–3`: Kette in der ganzen Stadt, nächster Schritt Konzern, Zentrale wird gebaut) → Stadtansicht mit Titel „WatchHawks Konzern · Vorschau“ und Knopf „Zurück in den Laden“ (Dach fliegt wieder weg).
-- **Schritt 1 ist nur zum Anschauen:** Es werden noch keine Sterne abgezogen und nichts zurückgesetzt – kommt in Schritt 2 zusammen mit den Aktien.
-- **Stadt:** 6 Blöcke mit Straßen, Mittellinien, fahrenden Autos. Querformat 3 × 2, Hochformat 2 × 3 (Block 84 × 72, Straße 12). Blöcke: Hinterhof (dunkler Hof, Nachbarhäuser, Mülltonne, Pfütze), Fußgängerzone (Pflaster, Bänke, Blumenkübel, Passanten), Einkaufszentrum (Parkplatz mit Autos), Hauptstraße (Steinplatten, Laternen, roter Teppich), Prachtstraße (Rasen, Baumreihe, Springbrunnen), **Baustelle „Zentrale“** (Bauzaun, drehender Kran, Bauschild) als Platz für die Konzernzentrale. Jede Filiale zeigt ihr Dach klein mit Namensschild; die aktuelle Filiale leuchtet golden, noch nicht erreichte Filialen sind Bauland mit „?“.
-- **Technik:** Die Stadt hat ihren eigenen Maßstab; `r()` zeichnet über `rctx` (sonst das Laden-Bild), Texte über `textZiel`. Test ohne 50 ★: `?stadt` an die Adresse hängen (z. B. https://raymichi.github.io/WatchHawks/?stadt).
-- **Dächer pro Filiale** jetzt für alle 5 (`DACH_STILE`): Ton (Hinterhof), Schiefer mit Gauben (Fußgängerzone), Flachdach mit Oberlichtern und Lüftern (Einkaufszentrum, `flachdach()`), dunkler Schiefer mit Gold (Hauptstraße), lila Ziegel mit Gold (Prachtstraße).
+## Konzern (js/konzern.js) – seit 20.11. spielbar
+Zweite Phase des Spiels, entschieden mit Michi: **weg vom Klicker, alles läuft automatisch**, man trifft nur Entscheidungen. Geld ist der Score.
+**Gründung:** Kachel „Konzern gründen“ (lila, Ruf-Reiter, 50 freie ★, zweimal klicken) → Dach legt sich auf den Laden → Zoom raus auf die Stadt → Lisa (3 Texte: Kette in der Stadt · Filialen laufen allein, klein oft/groß selten · Sterne einsammeln, Filialleiter, Zentrale, Limo) → ab jetzt ist die Stadt das Spiel (`spiel.konzern`, body-Klasse `konzernModus`). **Geld und restliche Sterne bleiben** (50 ★ werden abgezogen). Es gibt keine Ladenansicht mehr; Neuladen startet direkt in der Stadt.
+**Später (noch nicht gebaut):** Konzern-Reset → ganz von vorne (Hinterhof, Klicker), dafür **Gems** und ein neuer Knopf neben „Upgrades“ mit einem **Gem-Netz** (erster Punkt z. B. +500 % Grundverdienst, Werte noch testen).
+
+### Filialen
+Alle 5 Filialen stehen in der Stadt (auch wenn man vorher nicht alle erreicht hatte), Start Stufe 1. Jede läuft in **Runden**: Balken füllt sich, dann Auszahlung (schwebender Betrag). **Pro Sekunde verdienen alle gleich viel**, nur der Rhythmus ist anders:
+
+| Filiale | Runde (Stufe 1) | Auszahlung | €/s |
+|---|---|---|---|
+| Hinterhof | 2 s | 2.000 € | 1.000 |
+| Fußgängerzone | 6 s | 6.000 € | 1.000 |
+| Einkaufszentrum | 20 s | 20.000 € | 1.000 |
+| Hauptstraße | 60 s | 60.000 € | 1.000 |
+| Prachtstraße | 180 s | 180.000 € | 1.000 |
+
+- **€/s einer Filiale** = 1.000 × Stufe × 2^(eigene Meilensteine) × 2^(Konzern-Meilensteine) × 2^Turbo × 1,5^Umsatz-Spez. × 1,25^Tempo-Spez. × Trend (×3) × Werbung (×3) × (1 + 50 % × Marketing) × Limo-Boost.
+- **Ausbau (€):** 100.000 € × 1,10^(Stufe − 1). Kaufmenge oben umschaltbar: ×1 / ×10 / Max.
+- **Meilensteine pro Filiale:** Stufe 25, 50, 100, 150, 200, 300, 400 → Runde doppelt so schnell (= ×2 Geld).
+- **Konzern-Meilensteine:** alle Filialen auf 50, 100, 200, 300, 400 → alles ×2. Sorgt dafür, dass keine Filiale liegen bleibt.
+- **Spezialisierung** ab Stufe 10, 25, 50 (je eine Wahl, gilt bis zum Reset): **Umsatz** €×1,5 · **Prestige** ★×2 · **Tempo** €×1,25 und ★×1,25 (schnellere Runden). Offene Wahl = „!“-Blase über der Filiale und lila Kachel oben im Reiter Filialen.
+
+### Sterne
+- Jede Filiale füllt ihren **Sternentopf**: 1 ★ alle 15 min (× Prestige/Tempo, × Trend, × Presseabteilung), Platz 3 (+2 je Tresor). Blase „★n“ über dem Gebäude.
+- **Knopf unten „Sterne (n)“** sammelt alle Töpfe ein (pulsiert, wenn etwas da ist). Antippen eines Gebäudes sammelt nur dessen Topf.
+- **Sterne-Upgrades** (Reiter „Sterne“, pro Filiale): **Filialleiter** 15 ★ (sammelt automatisch, „L“-Abzeichen) · **Tresor** 5 × 2^n ★ (Topf +2) · **Turbo** 10 × 3^n ★ (Filiale ×2).
+- **Zentrale** (Reiter „Zentrale“, ★, wirkt auf alle): Marketing (+50 % €, 20 × 2^n, max 10) · Presseabteilung (Sterne +25 % schneller, 15 × 2^n, max 10) · Fuhrpark (Limos 25 % häufiger, Belohnung +50 %, 10 × 2^n, max 5) · Werbeagentur (Werbung: Pause −15 %, +15 s, 10 × 2^n, max 5). Die Baustelle wird zur Konzernzentrale: ab 1 Stufe Rohbau, ab 8 Glasfassade, ab 20 Gold mit Hubschrauber-Landeplatz (vorher Kran).
+
+### Trends, Werbung, Limousine
+- **Trends:** alle 10 min ein neuer Trend – eine Filiale €×3, eine andere ★×3. Anzeige oben links unter dem Geld (mit Restzeit) und als Abzeichen „€×3“ / „★×3“ am Gebäude.
+- **Werbekampagne** (Knopf unten): Knopf drücken → Filiale antippen → 60 s ×3 Geld, danach 10 min Pause (Werbeagentur verkürzt/verlängert). Orange leuchtender Rahmen + „×3“.
+- **Limousine** (wie der VIP-Kunde): schwarze Stretch-Limo mit Krone fährt auf der Straße unter der Zentrale vor, wartet 12 s, fährt wieder weg. Antippen (oder Kronen-Knopf oben rechts): 40 % Trinkgeld = 2 min Konzern-Einkommen · 30 % 30 s ×5 Geld · 30 % 30 s Turbo (Runden doppelt so schnell). Im Schnitt alle ~90 s, erste nach ~30 s.
+- **Offline:** Geld = €/s × Zeit (max. Offline-Zeit wie bisher), Töpfe füllen sich bis zur Obergrenze, Filialleiter sammeln weiter ein.
+
+### Konzern-Erfolge (eigener Reiter im Erfolge-Fenster)
+Nach der Gründung hat das Erfolge-Fenster zwei Reiter **Laden** / **Konzern** (mit eigenem roten Zähler). Konzern-Erfolge geben **Sterne**:
+Konzernumsatz (100 Mio. → 5 ★ … 1 Bio. → 40 ★) · Bauherr (Summe Stufen 50/100/250/500) · Chauffeur (Limos 1/10/50/200) · Gute Leitung (Filialleiter 1/3/5) · Sternensammler (10/50/200/1.000 ★) · Werbeprofi (Kampagnen 1/10/50) · Spezialist (Spezialisierungen 1/5/15).
+
+### Balancing (Bot, Start 5 Mio. €, 30 ★, kauft immer die niedrigste Filiale)
+Erste Fassung (Faktor 1,15, Meilensteine ab 10, Umsatz ×2) war viel zu schnell: alle auf Stufe 75 nach 12 min, danach Wand. Gewählt: Faktor 1,10, Meilensteine ab 25, Konzern-Meilensteine ab 50, Umsatz ×1,5:
+alle Filialen Stufe 25 nach ~2 min · 50 nach ~7 min · 75 nach ~14 min · 100 nach ~55 min · danach ca. +5 Stufen pro halbe Stunde (hier soll später der Konzern-Reset mit Gems greifen). Sterne sind ab dann der Haupthebel (Turbo, Zentrale).
+
+### Technik
+Zahlen zum Balancen stehen gesammelt in `K` und `K_ZENTRALE` oben in konzern.js. Stadt-Overlay: `konzernOverlay()` (Rundenbalken, Stufen-Abzeichen, Trends, Töpfe, Limo, schwebende Beträge). Menü-Karten mit mehreren Knöpfen: Eintrag mit `knoepfe: [{ text, tun, aus, gewaehlt }]` (Klasse `mehrknopf`). Im Breitbild rückt die Stadt nach links, wenn die Menü-Leiste offen ist.
+Test: Dev-Vorlage „Konzern läuft (5 Mio. €, 40 ★)“, Schummel-Knöpfe „Töpfe voll“ und „Limo“ (mit `?dev`).
 
 ## Kern-Loop (manuell oder per Mitarbeiter)
 1. **Werkstatt – BAUEN:** Uhr wird zusammengebaut (Armband → Gehäuse → Zifferblatt → Zeiger).
@@ -305,8 +342,8 @@ Neue Spielstand-Felder: `spielzeit`, `rundeZeit`, `besterVerkauf`, `proModell`, 
 - **Spielstand sichern** (seit 20.11., js/sichern.js): **Exportieren** erzeugt einen Code (`WH2.` + komprimiert per deflate, Base64; Fallback `WH1.` unkomprimiert), kopiert ihn in die Zwischenablage und zeigt ihn im Textfeld. **Importieren** → Code einfügen → „Diesen Spielstand laden“: ersetzt den Spielstand und lädt die Seite neu (alte Spielstände werden dabei wie gewohnt migriert). So kann man den Stand zwischen Handy, PC, GitHub-Pages und Claude-Link umziehen.
 - **Test-Werkzeuge** (nur mit `?dev` an der Adresse, z. B. https://raymichi.github.io/WatchHawks/?dev – wird gemerkt, `?dev=0` schaltet ab), lila gestrichelter Kasten unter „Spielstand sichern“:
   - **3 Speicherplätze** (Speichern/Laden, zeigt Filiale, Geld, ★, Datum; liegen im Browser, `watchhawks-platz-1…3`).
-  - **Vorlagen** (ersetzen den aktuellen Stand, Profil und Sprache bleiben): Neu (ohne Intro) · Hinterhof fast fertig (9.500 € verdient, Mitarbeiter da → zum Testen des 1. Umzugs mit Lisa) · 2. Laden (Fußgängerzone, 2 ★) · Prachtstraße mit 60 ★ (alles ausgebaut, Konzern-Kachel aktiv).
-  - **Schummeln:** € ×10 (zählt auch als verdient, gibt also Sterne), +10 ★, +50 ★, alle Reiter frei.
+  - **Vorlagen** (ersetzen den aktuellen Stand, Profil und Sprache bleiben): Neu (ohne Intro) · Hinterhof fast fertig (9.500 € verdient, Mitarbeiter da → zum Testen des 1. Umzugs mit Lisa) · 2. Laden (Fußgängerzone, 2 ★) · Prachtstraße mit 60 ★ (alles ausgebaut, Konzern-Kachel aktiv) · Konzern läuft (5 Mio. €, 40 ★).
+  - **Schummeln:** € ×10 (zählt auch als verdient, gibt also Sterne), +10 ★, +50 ★, alle Reiter frei, Töpfe voll, Limo sofort.
   - Nach Import/Vorlage/Laden wird nicht mehr gespeichert, bis die Seite neu geladen ist (`speicherSperre`), damit der alte Stand den neuen nicht überschreibt.
 - **Spielstand löschen** (zweimal klicken), Sprache bleibt erhalten.
 
