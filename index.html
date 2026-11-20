@@ -116,6 +116,22 @@
             <button class="zweit" id="vollbildBtn"><i data-icon="vollbild"></i><span id="vollbildLabel" data-t="btn.vollbild"></span></button>
           </div>
         </div>
+        <div class="feld"><span data-t="sich.titel"></span>
+          <div class="auswahl">
+            <button class="zweit" id="exportBtn" data-t="sich.export"></button>
+            <button class="zweit" id="importBtn" data-t="sich.import"></button>
+          </div>
+          <textarea id="sicherCode" rows="3" spellcheck="false" data-t-ph="sich.platzhalter" hidden></textarea>
+          <div class="auswahl" id="importZeile" hidden><button id="importLos" data-t="sich.laden"></button></div>
+          <div class="klein" id="sicherInfo"></div>
+        </div>
+        <div class="feld" id="testWerkzeuge" hidden><span data-t="test.titel"></span>
+          <div id="testPlaetze"></div>
+          <div class="klein" data-t="test.vorlagen"></div>
+          <div class="auswahl" id="testVorlagen"></div>
+          <div class="klein" data-t="test.cheats"></div>
+          <div class="auswahl" id="testCheats"></div>
+        </div>
         <div class="karte">
           <div><b data-t="allg.reset"></b><div class="klein" data-t="allg.resetInfo"></div></div>
           <button class="gefahr" id="resetBtn"></button>
@@ -156,6 +172,7 @@
 <script src="js/menue.js"></script>
 <script src="js/intro.js"></script>
 <script src="js/konzern.js"></script>
+<script src="js/sichern.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

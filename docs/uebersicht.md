@@ -302,6 +302,12 @@ Neue Spielstand-Felder: `spielzeit`, `rundeZeit`, `besterVerkauf`, `proModell`, 
 - **Sprache:** Deutsch / English. Alle Texte stehen in `js/sprache.js` (`t('schluessel')`, Namen über `nm()`).
   Neue Texte immer dort in beiden Sprachen eintragen.
 - **Anzeige:** Vollbild an/aus (zeigt „Geht hier nicht“, wenn der Browser es blockiert).
+- **Spielstand sichern** (seit 20.11., js/sichern.js): **Exportieren** erzeugt einen Code (`WH2.` + komprimiert per deflate, Base64; Fallback `WH1.` unkomprimiert), kopiert ihn in die Zwischenablage und zeigt ihn im Textfeld. **Importieren** → Code einfügen → „Diesen Spielstand laden“: ersetzt den Spielstand und lädt die Seite neu (alte Spielstände werden dabei wie gewohnt migriert). So kann man den Stand zwischen Handy, PC, GitHub-Pages und Claude-Link umziehen.
+- **Test-Werkzeuge** (nur mit `?dev` an der Adresse, z. B. https://raymichi.github.io/WatchHawks/?dev – wird gemerkt, `?dev=0` schaltet ab), lila gestrichelter Kasten unter „Spielstand sichern“:
+  - **3 Speicherplätze** (Speichern/Laden, zeigt Filiale, Geld, ★, Datum; liegen im Browser, `watchhawks-platz-1…3`).
+  - **Vorlagen** (ersetzen den aktuellen Stand, Profil und Sprache bleiben): Neu (ohne Intro) · Hinterhof fast fertig (9.500 € verdient, Mitarbeiter da → zum Testen des 1. Umzugs mit Lisa) · 2. Laden (Fußgängerzone, 2 ★) · Prachtstraße mit 60 ★ (alles ausgebaut, Konzern-Kachel aktiv).
+  - **Schummeln:** € ×10 (zählt auch als verdient, gibt also Sterne), +10 ★, +50 ★, alle Reiter frei.
+  - Nach Import/Vorlage/Laden wird nicht mehr gespeichert, bis die Seite neu geladen ist (`speicherSperre`), damit der alte Stand den neuen nicht überschreibt.
 - **Spielstand löschen** (zweimal klicken), Sprache bleibt erhalten.
 
 ## Anzeige oben links

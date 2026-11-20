@@ -222,6 +222,15 @@ button i svg { width: 18px; height: 18px; }
 .statZeile b { white-space: nowrap; text-align: right; }
 .allgemein { display: flex; flex-direction: column; gap: 14px; padding: 6px 16px 18px; }
 .sprachKnopf { background: var(--creme-dunkel); font-size: 11px; }
+.auswahl[hidden], #testWerkzeuge[hidden] { display: none; }
+#sicherCode { width: 100%; box-sizing: border-box; font: 14px 'VT323', monospace; padding: 8px; border: 3px solid var(--umriss);
+              border-radius: 8px; background: #fffaf0; color: #2a1a22; resize: vertical; word-break: break-all; }
+#sicherInfo { font: 16px 'VT323', monospace; color: #ffd77a; min-height: 1em; }
+#testWerkzeuge { padding: 10px; border: 3px dashed #8a52b8; border-radius: 10px; background: rgba(138, 82, 184, .08); }
+#testWerkzeuge .klein { font: 15px 'VT323', monospace; color: #d9c6ec; margin-top: 4px; }
+#testWerkzeuge button { font-size: 9px; padding: 8px 10px; }
+.testPlatz { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.testPlatz span { flex: 1; min-width: 0; font: 16px 'VT323', monospace; color: #e8dcc4; }
 .sprachKnopf.aktiv { background: var(--verkauf); outline: 3px solid #fff; outline-offset: 2px; }
 
 /* ---------- Erfolge-Fenster ---------- */

@@ -76,6 +76,7 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [x] **Konzern, Schritt 1 (Vorschau):** lila Kachel „Konzern gründen“ (50 freie ★) im Ruf-Reiter → Dach legt sich auf den Laden → Zoom raus auf die Stadt mit allen 5 Filialen + Baustelle „Zentrale“ → Lisa (3 Texte) → Stadtansicht mit „Zurück in den Laden“. Test-Link: `?stadt` am Ende der Adresse
 - [x] Eigene Dächer für Einkaufszentrum (Flachdach mit Oberlichtern), Hauptstraße (dunkel mit Gold), Prachtstraße (lila mit Gold)
 - [x] Umgebung jeder Filiale im Stil der Stadtansicht: Hinterhof (Hof, Nachbarhäuser, Mülltonnen), Fußgängerzone (Pflaster, Bänke, Passanten, keine Straße), Einkaufszentrum (Flachdächer, Parkplatz), Hauptstraße (Steinplatten, roter Teppich, elegante Häuser), Prachtstraße (Rasen, Springbrunnen, Allee, Villen); Straßen mit fahrenden Autos
+- [x] **Spielstände sichern:** Export/Import als Code in Einstellungen → Allgemein (für alle, ~600 Zeichen, komprimiert); mit `?dev` Test-Werkzeuge: 3 Speicherplätze, Vorlagen (Neu ohne Intro, Hinterhof fast fertig, 2. Laden, Prachtstraße mit 60 ★), Schummel-Knöpfe (€ ×10, +10 ★, +50 ★, alle Reiter)
 - [x] Meldungen oben unter der Geld-Anzeige statt unten (verdecken am Handy nicht mehr den VIP bei offenem Upgrade-Menü)
 - [x] Spiel heißt jetzt **WatchHawks**; Versionsverwaltung auf GitHub (RayMichi/WatchHawks), Claude lädt jede Änderung hoch, spielbar über GitHub Pages (läuft, von Michi am Handy getestet)
 
@@ -100,5 +101,5 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 
 ## Später
 - [ ] Balancing-Feinschliff nach Testrunden
-- [ ] Spielstand sichern: Export/Import als Code, später evtl. Cloud-Speicher mit Login (erst wenn das Spiel weiter ist)
+- [ ] Spielstand in der Cloud mit Login (Export/Import als Code gibt es seit 20.11.)
 - [ ] Als Desktop-App verpacken (für Steam)
