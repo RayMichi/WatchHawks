@@ -27,20 +27,20 @@ Zweite Phase des Spiels, entschieden mit Michi: **weg vom Klicker, alles läuft 
 **Später (noch nicht gebaut):** Konzern-Reset → ganz von vorne (Hinterhof, Klicker), dafür **Gems** und ein neuer Knopf neben „Upgrades“ mit einem **Gem-Netz** (erster Punkt z. B. +500 % Grundverdienst, Werte noch testen).
 
 ### Filialen
-Alle 5 Filialen stehen in der Stadt (auch wenn man vorher nicht alle erreicht hatte), Start Stufe 1. Jede läuft in **Runden**: Balken füllt sich, dann Auszahlung (schwebender Betrag). **Pro Sekunde verdienen alle gleich viel**, nur der Rhythmus ist anders:
+Alle 5 Filialen stehen in der Stadt (auch wenn man vorher nicht alle erreicht hatte), Start Stufe 1. Jede läuft in **Runden**: Balken füllt sich, dann Auszahlung (schwebender Betrag). Seit 20.11. (Michi: „alle gleich teuer ist lame, man levelt alles gleichmäßig“) hat jede Filiale **eigene Preise, eigenes Preiswachstum und eigenen Verdienst** – kleine sind billig, werden aber schnell teurer; große sind teuer, bringen viel und werden langsamer teurer:
 
-| Filiale | Runde (Stufe 1) | Auszahlung | €/s |
-|---|---|---|---|
-| Hinterhof | 2 s | 2.000 € | 1.000 |
-| Fußgängerzone | 6 s | 6.000 € | 1.000 |
-| Einkaufszentrum | 20 s | 20.000 € | 1.000 |
-| Hauptstraße | 60 s | 60.000 € | 1.000 |
-| Prachtstraße | 180 s | 180.000 € | 1.000 |
+| Filiale | Runde (Stufe 1) | erster Ausbau | Preis × pro Stufe | €/s pro Stufe |
+|---|---|---|---|---|
+| Hinterhof | 2 s | 100.000 € | 1,07 | 600 |
+| Fußgängerzone | 6 s | 400.000 € | 1,09 | 1.500 |
+| Einkaufszentrum | 20 s | 1,5 Mio. € | 1,11 | 4.000 |
+| Hauptstraße | 60 s | 6 Mio. € | 1,13 | 12.000 |
+| Prachtstraße | 180 s | 25 Mio. € | 1,15 | 40.000 |
 
-- **€/s einer Filiale** = 1.000 × Stufe × 2^(eigene Meilensteine) × 2^(Konzern-Meilensteine) × 2^Turbo × 1,5^Umsatz-Spez. × 1,25^Tempo-Spez. × Trend (×3) × Werbung (×3) × (1 + 50 % × Marketing) × Limo-Boost.
-- **Ausbau (€):** 100.000 € × 1,10^(Stufe − 1). Kaufmenge oben umschaltbar: ×1 / ×10 / Max.
+- **€/s einer Filiale** = €/s pro Stufe × Stufe × 2^(eigene Meilensteine) × 2^(Konzern-Meilensteine) × 2^Turbo × 1,5^Umsatz-Spez. × 1,25^Tempo-Spez. × Trend (×3) × Werbung (×3) × (1 + 50 % × Marketing) × Limo-Boost. Auszahlung pro Runde = €/s × Rundenzeit.
+- **Ausbau (€):** erster Ausbau × Faktor^(Stufe − 1) (Werte siehe Tabelle, `K.preisStart`, `K.preisFaktor`). Kaufmenge oben umschaltbar: ×1 / ×10 / Max.
 - **Meilensteine pro Filiale:** Stufe 25, 50, 100, 150, 200, 300, 400 → Runde doppelt so schnell (= ×2 Geld).
-- **Konzern-Meilensteine:** alle Filialen auf 50, 100, 200, 300, 400 → alles ×2. Sorgt dafür, dass keine Filiale liegen bleibt.
+- **Konzern-Meilensteine:** alle Filialen auf 25, 50, 100, 200, 300, 400 → alles ×2. Sorgt dafür, dass die teuren Filialen nicht liegen bleiben.
 - **Spezialisierung** ab Stufe 10, 25, 50 (je eine Wahl, gilt bis zum Reset): **Umsatz** €×1,5 · **Prestige** ★×2 · **Tempo** €×1,25 und ★×1,25 (schnellere Runden). Offene Wahl = „!“-Blase über der Filiale und lila Kachel oben im Reiter Filialen.
 
 ### Sterne
@@ -59,9 +59,31 @@ Alle 5 Filialen stehen in der Stadt (auch wenn man vorher nicht alle erreicht ha
 Nach der Gründung hat das Erfolge-Fenster zwei Reiter **Laden** / **Konzern** (mit eigenem roten Zähler). Konzern-Erfolge geben **Sterne**:
 Konzernumsatz (100 Mio. → 5 ★ … 1 Bio. → 40 ★) · Bauherr (Summe Stufen 50/100/250/500) · Chauffeur (Limos 1/10/50/200) · Gute Leitung (Filialleiter 1/3/5) · Sternensammler (10/50/200/1.000 ★) · Werbeprofi (Kampagnen 1/10/50) · Spezialist (Spezialisierungen 1/5/15).
 
-### Balancing (Bot, Start 5 Mio. €, 30 ★, kauft immer die niedrigste Filiale)
-Erste Fassung (Faktor 1,15, Meilensteine ab 10, Umsatz ×2) war viel zu schnell: alle auf Stufe 75 nach 12 min, danach Wand. Gewählt: Faktor 1,10, Meilensteine ab 25, Konzern-Meilensteine ab 50, Umsatz ×1,5:
-alle Filialen Stufe 25 nach ~2 min · 50 nach ~7 min · 75 nach ~14 min · 100 nach ~55 min · danach ca. +5 Stufen pro halbe Stunde (hier soll später der Konzern-Reset mit Gems greifen). Sterne sind ab dann der Haupthebel (Turbo, Zentrale).
+### Balancing (Bot, Start 5 Mio. €, 30 ★)
+Erste Fassung (alle gleich teuer, Faktor 1,15, Meilensteine ab 10, Umsatz ×2): alle auf Stufe 75 nach 12 min, danach Wand. Zweite Fassung (alle gleich, Faktor 1,10): man levelt automatisch alles gleichmäßig → verworfen.
+**Jetzt (eigene Preise je Filiale), Bot kauft immer den Ausbau mit dem besten Ertrag pro Euro** (ohne Sterne/Trends):
+
+| nach | Hinterhof | Fußgängerzone | EKZ | Hauptstraße | Prachtstraße | €/s |
+|---|---|---|---|---|---|---|
+| 1 min | 17 | 8 | 3 | 1 | 1 | 86 Tsd. |
+| 15 min | 35 | 15 | 9 | 6 | 3 | 290 Tsd. |
+| 1 h | 73 | 44 | 33 | 20 | 17 | 1,5 Mio. |
+| 3 h | 97 | 71 | 56 | 40 | 33 | 5,2 Mio. |
+
+Mit Sternen, Spezialisierung, Trends und Turbo (vollständiger Bot) deutlich schneller: nach 1 h ca. 100 Mio. €/s, nach 3 h ca. 1–2 Mrd. €/s.
+
+**Sterne-Varianten (durchgerechnet 20.11., noch nicht entschieden)**, 3 h, Bot sammelt alle 5 min ein:
+
+| Variante | ★ nach 1 h | ★ nach 3 h | Anteil Hinterhof → Prachtstraße |
+|---|---|---|---|
+| V0 jetzt: alle 1 ★ / 15 min | 42 | 179 | 28 / 21 / 16 / 14 / 20 % |
+| V1 umgekehrt fest: 45 / 30 / 15 / 10 / 6 min | 39 | 190 | 9 / 10 / 15 / 20 / 46 % |
+| V2 umgekehrt + wächst mit Stufe (60 / 40 / 25 / 15 / 10 min, +5 % je Stufe) | 78 | 717 | 16 / 15 / 14 / 20 / 35 % |
+| V2b wie V2, +3 % je Stufe | 53 | 417 | 15 / 15 / 15 / 20 / 35 % |
+| V2c wie V2, +2 % je Stufe | 43 | 313 | 15 / 15 / 14 / 20 / 36 % |
+| V3 alle 30 min, +5 % je Stufe | 74 | 589 | 38 / 23 / 14 / 12 / 13 % (Hinterhof dominiert) |
+
+Nur alle 30 min einsammeln (Topf voll bei 3): V1 115 ★ statt 190, V2b 358 statt 417.
 
 ### Technik
 Zahlen zum Balancen stehen gesammelt in `K` und `K_ZENTRALE` oben in konzern.js. Stadt-Overlay: `konzernOverlay()` (Rundenbalken, Stufen-Abzeichen, Trends, Töpfe, Limo, schwebende Beträge). Menü-Karten mit mehreren Knöpfen: Eintrag mit `knoepfe: [{ text, tun, aus, gewaehlt }]` (Klasse `mehrknopf`). Im Breitbild rückt die Stadt nach links, wenn die Menü-Leiste offen ist.

@@ -14,10 +14,11 @@ const imKonzern = () => !!spiel.konzern;
 // ---------- Zahlen (zum Balancen alles hier) ----------
 const K = {
   runde:      [2, 6, 20, 60, 180],      // Sekunden pro Runde (Stufe 1, ohne Meilensteine)
-  proSek:     1000,                     // € pro Sekunde und Stufe – für alle Filialen gleich
-  preisStart: 100000, preisFaktor: 1.10, // Ausbau: 100.000 € × 1,10^(Stufe−1)
+  proSek:     [600, 1500, 4000, 12000, 40000],          // € pro Sekunde und Stufe (je Filiale)
+  preisStart: [1e5, 4e5, 1.5e6, 6e6, 2.5e7],          // erster Ausbau je Filiale
+  preisFaktor: [1.07, 1.09, 1.11, 1.13, 1.15],         // Preis steigt pro Stufe (klein: schnell, groß: langsam)
   meilensteine: [25, 50, 100, 150, 200, 300, 400],       // pro Filiale: Runde doppelt so schnell
-  konzernMeilensteine: [50, 100, 200, 300, 400],          // alle Filialen: alles ×2
+  konzernMeilensteine: [25, 50, 100, 200, 300, 400],      // alle Filialen: alles ×2
   umsatzFaktor: 1.5,                    // Spezialisierung Umsatz
   sternZeit:  900,                      // Sekunden pro Stern und Filiale (Grundwert)
   topf:       3, tresorPlus: 2,         // Sternentopf: Platz + pro Tresor-Stufe
@@ -54,7 +55,7 @@ const kKonzernMeilen = () => K.konzernMeilensteine.filter(m => kMinStufe() >= m)
 const kBoost = art => { const b = spiel.konzern.boost; return b && b.art === art ? b.faktor : 1; };
 function kProSek(i) {   // € pro Sekunde einer Filiale
   const kz = spiel.konzern, f = kz.f[i];
-  let x = K.proSek * f.stufe * Math.pow(2, kSelbstMeilen(f.stufe)) * Math.pow(2, kKonzernMeilen()) * Math.pow(2, f.turbo);
+  let x = K.proSek[i] * f.stufe * Math.pow(2, kSelbstMeilen(f.stufe)) * Math.pow(2, kKonzernMeilen()) * Math.pow(2, f.turbo);
   x *= Math.pow(K.umsatzFaktor, kAnzahl(f.spez, 'umsatz')) * Math.pow(1.25, kAnzahl(f.spez, 'tempo'));
   if (kz.trend.geld === i) x *= K.trendFaktor;
   if (kz.kampagne.f === i && kz.kampagne.rest > 0) x *= K.kampagneFaktor;
@@ -73,11 +74,12 @@ function kSternRate(i) { // Sterne pro Sekunde
   return r * (1 + 0.25 * kz.zentrale.jaeger);
 }
 const kTopfGroesse = i => K.topf + K.tresorPlus * spiel.konzern.f[i].tresor;
-const kAusbauPreis = (st, n = 1) => K.preisStart * Math.pow(K.preisFaktor, st - 1) * (Math.pow(K.preisFaktor, n) - 1) / (K.preisFaktor - 1);
+const kAusbauPreis = (i, st, n = 1) => { const g = K.preisFaktor[i]; return K.preisStart[i] * Math.pow(g, st - 1) * (Math.pow(g, n) - 1) / (g - 1); };
 function kKaufMenge(i) {  // wie viele Stufen gekauft werden (×1, ×10, Max)
   const st = spiel.konzern.f[i].stufe, m = spiel.konzern.menge;
   if (m !== 'max') return m;
-  let n = Math.floor(Math.log(1 + spiel.geld * (K.preisFaktor - 1) / (K.preisStart * Math.pow(K.preisFaktor, st - 1))) / Math.log(K.preisFaktor));
+  const g = K.preisFaktor[i];
+  let n = Math.floor(Math.log(1 + spiel.geld * (g - 1) / (K.preisStart[i] * Math.pow(g, st - 1))) / Math.log(g));
   return Math.max(1, n);
 }
 const kSpezOffen = i => { const f = spiel.konzern.f[i]; return f.spez.length < K.spezStufen.length && f.stufe >= K.spezStufen[f.spez.length]; };
@@ -87,7 +89,7 @@ const kKampagneDauer = () => K.kampagneDauer + 15 * spiel.konzern.zentrale.agent
 
 // ---------- Aktionen ----------
 function kAusbauen(i) {
-  const f = spiel.konzern.f[i], n = kKaufMenge(i), p = kAusbauPreis(f.stufe, n);
+  const f = spiel.konzern.f[i], n = kKaufMenge(i), p = kAusbauPreis(i, f.stufe, n);
   if (!bezahlen(p)) return;
   const vorher = kKonzernMeilen(), selbst = kSelbstMeilen(f.stufe);
   f.stufe += n;
@@ -679,7 +681,7 @@ function konzernEintraege(tab) {
       knoepfe: ['umsatz', 'prestige', 'tempo'].map(a => ({ text: t('kp.' + a), tun: () => kSpezWaehlen(i, a) })) });
   });
   kz.f.forEach((f, i) => {
-    const n = kKaufMenge(i), p = kAusbauPreis(f.stufe, n), nm2 = K.meilensteine.find(m => f.stufe < m);
+    const n = kKaufMenge(i), p = kAusbauPreis(i, f.stufe, n), nm2 = K.meilensteine.find(m => f.stufe < m);
     const spez = f.spez.length ? ' · ' + f.spez.map(a => t('kp.kurz.' + a)).join(', ') : '';
     liste.push({ key: 'kf-' + i, icon: 'laden', titel: t('kf.filiale', { n: kName(i), s: f.stufe }),
       info: t('kf.zeile', { x: kurz(kProSek(i)), r: sek(kRunde(i)), m: nm2 || '–' }) + spez,
