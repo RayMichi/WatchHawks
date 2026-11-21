@@ -50,52 +50,55 @@ function neuerKonzern() {
 
 // ---------- Rechnen ----------
 const kAnzahl = (liste, w) => liste.filter(x => x === w).length;
-const kSelbstMeilen = st => K.meilensteine.filter(m => st >= m).length;
+const kSelbstMeilen = (st, i = -1) => { const f = i >= 0 ? kolMeilenFaktor(i) : 1; return K.meilensteine.filter(m => st >= Math.round(m * f)).length; };
 const kMinStufe = () => Math.min(...spiel.konzern.f.map(f => f.stufe));
 const kKonzernMeilen = () => K.konzernMeilensteine.filter(m => kMinStufe() >= m).length;
 const kBoost = art => { const b = spiel.konzern.boost; return b && b.art === art ? b.faktor : 1; };
 function kProSek(i) {   // € pro Sekunde einer Filiale
   const kz = spiel.konzern, f = kz.f[i];
-  let x = K.proSek[i] * f.stufe * Math.pow(2, kSelbstMeilen(f.stufe)) * Math.pow(2, kKonzernMeilen()) * Math.pow(2, f.turbo);
+  let x = K.proSek[i] * f.stufe * Math.pow(2, kSelbstMeilen(f.stufe, i)) * Math.pow(2, kKonzernMeilen()) * Math.pow(2, f.turbo);
   x *= Math.pow(K.umsatzFaktor, kAnzahl(f.spez, 'umsatz')) * Math.pow(1.25, kAnzahl(f.spez, 'tempo'));
   if (kz.trend.geld === i) x *= K.trendFaktor;
   if (kz.kampagne.f === i && kz.kampagne.rest > 0) x *= K.kampagneFaktor;
-  x *= (1 + 0.5 * kz.zentrale.marketing) * kBoost('preis') * kBoost('turbo');
+  x *= (1 + 0.5 * kz.zentrale.marketing) * kBoost('preis') * kBoost('turbo') * kolGeldFaktor(i);
   return x;
 }
 const kGesamtProSek = () => spiel.konzern.f.reduce((s, _, i) => s + kProSek(i), 0);
 function kRunde(i) {    // Sekunden pro Runde (nur Optik/Rhythmus – das Geld pro Sekunde steckt in kProSek)
   const f = spiel.konzern.f[i];
-  return K.runde[i] / Math.pow(2, kSelbstMeilen(f.stufe)) / Math.pow(1.25, kAnzahl(f.spez, 'tempo')) / kBoost('turbo');
+  return K.runde[i] / Math.pow(2, kSelbstMeilen(f.stufe, i)) / Math.pow(1.25, kAnzahl(f.spez, 'tempo')) / kBoost('turbo') / kolRundenFaktor(i);
 }
 function kSternRate(i) { // Sterne pro Sekunde
   const kz = spiel.konzern, f = kz.f[i];
   let r = 1 / K.sternZeit[i] * (1 + K.sternProStufe * (f.stufe - 1)) * Math.pow(2, kAnzahl(f.spez, 'prestige')) * Math.pow(1.25, kAnzahl(f.spez, 'tempo'));
   if (kz.trend.stern === i) r *= K.trendFaktor;
-  return r * (1 + 0.25 * kz.zentrale.jaeger);
+  return r * (1 + 0.25 * kz.zentrale.jaeger) * kolSternFaktor(i);
 }
-const kTopfGroesse = i => K.topf + K.tresorPlus * spiel.konzern.f[i].tresor;
-const kAusbauPreis = (i, st, n = 1) => { const g = K.preisFaktor[i]; return K.preisStart[i] * Math.pow(g, st - 1) * (Math.pow(g, n) - 1) / (g - 1); };
+const kTopfGroesse = i => Math.min(99, K.topf + K.tresorPlus * spiel.konzern.f[i].tresor + kolTopfPlus(i));
+const kPreisStart = i => K.preisStart[i] * (1 - kolRabatt(i));
+const kAusbauPreis = (i, st, n = 1) => { const g = K.preisFaktor[i]; return kPreisStart(i) * Math.pow(g, st - 1) * (Math.pow(g, n) - 1) / (g - 1); };
 function kKaufMenge(i) {  // wie viele Stufen gekauft werden (×1, ×10, Max)
   const st = spiel.konzern.f[i].stufe, m = spiel.konzern.menge;
   if (m !== 'max') return m;
   const g = K.preisFaktor[i];
-  let n = Math.floor(Math.log(1 + spiel.geld * (g - 1) / (K.preisStart[i] * Math.pow(g, st - 1))) / Math.log(g));
+  let n = Math.floor(Math.log(1 + spiel.geld * (g - 1) / (kPreisStart(i) * Math.pow(g, st - 1))) / Math.log(g));
   return Math.max(1, n);
 }
 const kSpezOffen = i => { const f = spiel.konzern.f[i]; return f.spez.length < K.spezStufen.length && f.stufe >= K.spezStufen[f.spez.length]; };
 const kSternBereit = () => spiel.konzern.f.reduce((s, f) => s + (f.leiter ? 0 : Math.floor(f.topf)), 0);
-const kKampagneAbkling = () => K.kampagneAbkling * Math.pow(0.85, spiel.konzern.zentrale.agentur);
-const kKampagneDauer = () => K.kampagneDauer + 15 * spiel.konzern.zentrale.agentur;
+const kKampagneAbkling = (i = -1) => K.kampagneAbkling * Math.pow(0.85, spiel.konzern.zentrale.agentur) * (i >= 0 ? kolWerbAbkling(i) : 1);
+const kKampagneDauer = (i = -1) => (K.kampagneDauer + 15 * spiel.konzern.zentrale.agentur) * (i >= 0 ? kolWerbDauer(i) : 1);
 
 // ---------- Aktionen ----------
 function kAusbauen(i) {
   const f = spiel.konzern.f[i], n = kKaufMenge(i), p = kAusbauPreis(i, f.stufe, n);
   if (!bezahlen(p)) return;
-  const vorher = kKonzernMeilen(), selbst = kSelbstMeilen(f.stufe);
+  const vorher = kKonzernMeilen(), selbst = kSelbstMeilen(f.stufe, i);
   f.stufe += n;
-  if (kSelbstMeilen(f.stufe) > selbst) meldung(t('k.meilenstein', { n: filialName(i) }));
-  if (kKonzernMeilen() > vorher) meldung(t('k.konzernMeilenstein'));
+  const neuS = kSelbstMeilen(f.stufe, i) - selbst, neuK = kKonzernMeilen() - vorher;
+  if (neuS > 0) meldung(t('k.meilenstein', { n: filialName(i) }));
+  if (neuK > 0) meldung(t('k.konzernMeilenstein'));
+  if (neuS + neuK > 0) kolEntwurfGeben(neuS + neuK, t('kol.grundMeilenstein'));
 }
 function kSterneEinsammeln(nur = -1) {
   let n = 0;
@@ -130,7 +133,7 @@ function kKampagneStarten() {
 function kKampagneAuf(i) {
   const kz = spiel.konzern;
   konzern.waehlen = false;
-  kz.kampagne = { f: i, rest: kKampagneDauer(), abkling: kKampagneAbkling() };
+  kz.kampagne = { f: i, rest: kKampagneDauer(i), abkling: kKampagneAbkling(i) };
   kz.kampagnen++;
   meldung(t('k.kampagneLaeuft', { n: filialName(i) }));
 }
@@ -139,7 +142,7 @@ function kKampagneAuf(i) {
 let limo = null, naechsteLimo = K.limoSperre;
 function limoUpdate(dt) {
   if (!limo) {
-    naechsteLimo -= dt * (1 + 0.25 * spiel.konzern.zentrale.chauffeur);
+    naechsteLimo -= dt * (1 + 0.25 * spiel.konzern.zentrale.chauffeur) * kolLimoHaeufiger();
     if (naechsteLimo <= 0) limo = { phase: 'kommt', x: 0, bleibt: K.limoBleibt };
     return;
   }
@@ -150,13 +153,14 @@ function limoUpdate(dt) {
 function limoWeg() { limo = null; naechsteLimo = K.limoAbstand * (0.6 + Math.random() * 0.8); }
 function limoKlick() {
   if (!limo || limo.phase !== 'wartet') return;
-  const kz = spiel.konzern, extra = 1 + 0.5 * kz.zentrale.chauffeur, z = Math.random();
+  const kz = spiel.konzern, extra = (1 + 0.5 * kz.zentrale.chauffeur) * kolLimoBelohnung(), z = Math.random();
   kz.limos++;
-  if (z < 0.4) {
+  if (z < KOL.limoChance) { kolEntwurfGeben(1); meldung(t('k.limoEntwurf')); }
+  else if (z < 0.4 + KOL.limoChance * 0.4) {
     const g = kGesamtProSek() * 120 * extra;
     spiel.geld += g; spiel.verdient += g; kz.verdient += g;
     meldung(t('k.limoGeld', { x: zahl(g) }));
-  } else if (z < 0.7) { kz.boost = { art: 'preis', faktor: 5, rest: 30 * extra }; meldung(t('k.limoPreis', { s: Math.round(30 * extra) })); }
+  } else if (z < 0.7 + KOL.limoChance * 0.3) { kz.boost = { art: 'preis', faktor: 5, rest: 30 * extra }; meldung(t('k.limoPreis', { s: Math.round(30 * extra) })); }
   else { kz.boost = { art: 'turbo', faktor: 2, rest: 30 * extra }; meldung(t('k.limoTurbo', { s: Math.round(30 * extra) })); }
   limo.phase = 'faehrt';
 }
@@ -174,38 +178,45 @@ function konzernTick(dt) {
     f.t += dt;
     if (f.t >= runde) {
       const n = Math.floor(f.t / runde); f.t -= n * runde;
-      const g = kProSek(i) * runde * n;
+      const pro = kProSek(i) * runde, ex = kolRundenExtra(i, f, n, pro), g = pro * n + ex.extra;
       spiel.geld += g; spiel.verdient += g; kz.verdient += g;
-      if (runde >= 0.8) konzern.schwebe.push({ text: '+' + kurz(g) + ' €', i, alter: 0, farbe: '#ffd77a' });
+      if (runde >= 0.8) konzern.schwebe.push({ text: '+' + kurz(g) + ' €', i, alter: 0, farbe: ex.extra > 0 ? '#9affb0' : '#ffd77a' });
+      if (ex.treffer && runde >= 0.8) konzern.schwebe.push({ text: t('kol.glueck', { x: kolGlueckFaktor(i) }), i, alter: -0.3, farbe: '#a0e8f8' });
     }
     const cap = kTopfGroesse(i);
     f.topf = Math.min(cap, f.topf + kSternRate(i) * dt);
     if (f.leiter && f.topf >= 1) { const k = Math.floor(f.topf); f.topf -= k; spiel.sterne += k; spiel.gesamtSterne += k; kz.gesammelt += k; }
   });
   limoUpdate(dt);
+  kolTick(dt);
   for (const s of konzern.schwebe) s.alter += dt;
   konzern.schwebe = konzern.schwebe.filter(s => s.alter < 1.4).slice(-20);
 }
 function neuerTrend(melden) {
   const kz = spiel.konzern, n = kz.f.length;
-  const geld = Math.floor(Math.random() * n);
-  let stern = Math.floor(Math.random() * (n - 1)); if (stern >= geld) stern++;
-  kz.trend = { geld, stern, rest: K.trendDauer };
+  const ziehen = ohne => {   // Fliegeruhren: Trends landen öfter in dieser Filiale
+    const w = kz.f.map((_, i) => (i === ohne ? 0 : kolTrendGewicht(i))), summe = w.reduce((a, b) => a + b, 0);
+    let z = Math.random() * summe;
+    for (let i = 0; i < n; i++) { if (z < w[i]) return i; z -= w[i]; }
+    return n - 1;
+  };
+  const geld = ziehen(-1), stern = ziehen(geld);
+  kz.trend = { geld, stern, rest: K.trendDauer * Math.max(kolTrendDauer(geld), kolTrendDauer(stern)) };
   if (melden) meldung(t('k.trendNeu', { a: filialName(geld), b: filialName(stern) }));
 }
 // Offline: Geld pro Sekunde × Zeit, Sterntöpfe füllen sich (bis zur Obergrenze, Filialleiter sammeln ein)
 function konzernOffline() {
   const kz = spiel.konzern;
-  const weg = Math.min((Date.now() - (spiel.zuletzt || Date.now())) / 1000, offlineStunden() * 3600);
+  const weg = Math.min((Date.now() - (spiel.zuletzt || Date.now())) / 1000, (offlineStunden() + kolOfflinePlus()) * 3600);
   if (weg < 60) return;
   kz.boost = null; kz.kampagne.rest = 0;
-  const g = kGesamtProSek() * weg;
+  const g = kz.f.reduce((s, _, i) => s + kProSek(i) * kolOfflineGeld(i), 0) * weg;
   spiel.geld += g; spiel.verdient += g; kz.verdient += g;
   let st = 0;
   kz.f.forEach((f, i) => {
     const neu = kSternRate(i) * weg;
     if (f.leiter) { const k = Math.floor(f.topf + neu); f.topf = (f.topf + neu) - k; st += k; }
-    else f.topf = Math.min(kTopfGroesse(i), f.topf + neu);
+    else f.topf = kolOfflineSterneFrei(i) ? f.topf + neu : Math.min(kTopfGroesse(i), f.topf + neu);
   });
   spiel.sterne += st; spiel.gesamtSterne += st; kz.gesammelt += st;
   kz.trend.rest -= weg; if (kz.trend.rest <= 0) neuerTrend(false);
@@ -602,6 +613,7 @@ function konzernOverlay(M) {
       text('×3', tx + tw / 2, y, 3, '#ffffff', null);
     }
     // Sternentopf / Filialleiter / Spezialisierung offen
+    kolFahne(i, x - 4, y + h.h + 6);
     const sx = x + h.w - 4, sy = y + 4;
     if (kSpezOffen(i)) kBlase(sx - 17, y - 6, '!', '#ffd77a', '#8a2a2a', true);
     sternAnzeige(sx, sy, f, i);
@@ -683,7 +695,7 @@ function konzernEintraege(tab) {
       knoepfe: ['umsatz', 'prestige', 'tempo'].map(a => ({ text: t('kp.' + a), tun: () => kSpezWaehlen(i, a) })) });
   });
   kz.f.forEach((f, i) => {
-    const n = kKaufMenge(i), p = kAusbauPreis(i, f.stufe, n), nm2 = K.meilensteine.find(m => f.stufe < m);
+    const n = kKaufMenge(i), p = kAusbauPreis(i, f.stufe, n), nm2 = K.meilensteine.map(m => Math.round(m * kolMeilenFaktor(i))).find(m => f.stufe < m);
     const spez = f.spez.length ? ' · ' + f.spez.map(a => t('kp.kurz.' + a)).join(', ') : '';
     liste.push({ key: 'kf-' + i, icon: 'laden', titel: t('kf.filiale', { n: kName(i), s: f.stufe }),
       info: t('kf.zeile', { x: kurz(kProSek(i)), r: sek(kRunde(i)), m: nm2 || '–' }) + spez,
@@ -706,6 +718,7 @@ function konzernHud() {
   $('kWerbBtn').classList.toggle('aktiv', konzern.waehlen);
   $('trendTxt').textContent = t('k.trend', { a: kName(kz.trend.geld), b: kName(kz.trend.stern), z: mmss(kz.trend.rest) });
   $('menueBtn').hidden = false;
+  kolAktualisieren();
 }
 $('kSternBtn').addEventListener('click', () => kSterneEinsammeln());
 $('kWerbBtn').addEventListener('click', () => kKampagneStarten());
@@ -739,7 +752,7 @@ function sternAnzeige(cx, cy, f, i) {
   // Box oben rechts am Gebäude: „3/6 ★“, darunter ein Balken über die ganze Breite bis zum nächsten Stern
   const max = kTopfGroesse(i), voll = f.topf >= max, anzahl = Math.floor(f.topf), anteil = voll ? 1 : f.topf - anzahl;
   const puls = voll && !f.leiter ? 0.55 + 0.45 * Math.sin(zeit * 6) : 1;
-  const inhalt = anzahl + '/' + max, gr = 3.4;
+  const inhalt = anzahl + '/' + (max >= 99 ? '∞' : max), gr = 3.4;
   const tw = webBreite(inhalt, gr), sternB = 5, w = Math.ceil(tw + sternB + 5), h = 10;
   const x = cx + 8 - w, y = cy - 7;
   r(x - P * 2, y - P * 2, w + P * 4, h + P * 4, F_BASIS.umriss);

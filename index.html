@@ -43,6 +43,7 @@
       <button class="aktion verkauf" id="verBtn" hidden><span class="taste">4</span><i data-icon="verkauf"></i><span class="label" id="verLabel"></span></button>
       <button class="aktion kKnopf kStern" id="kSternBtn"><i data-icon="stern"></i><span class="label" id="kSternLabel"></span></button>
       <button class="aktion kKnopf kWerbung" id="kWerbBtn"><i data-icon="upgrades"></i><span class="label" id="kWerbLabel"></span></button>
+      <button class="aktion kKnopf kKol" id="kolBtn"><i data-icon="uhren"></i><span class="label" id="kolLabel"></span></button>
       <button class="zweit" id="menueBtn" hidden><i data-icon="upgrades"></i><span data-t="btn.upgrades"></span><span class="tabStern" id="menueStern" hidden><i data-icon="stern"></i></span></button>
     </div>
   </div>
@@ -78,6 +79,20 @@
     </div>
     <div id="erfolgeListe"></div>
     <div id="boniListe" hidden></div>
+  </div>
+</div>
+
+<div id="kolFenster" class="overlay">
+  <div class="fenster">
+    <div class="fensterKopf">
+      <i data-icon="uhren"></i>
+      <div><b data-t="kol.titel"></b><div class="klein" id="kolStand"></div></div>
+      <button class="zweit kleinknopf" id="kolZu" data-t-aria="aria.schliessen"><i data-icon="zu"></i></button>
+    </div>
+    <div class="kolScroll">
+      <div id="kolOben"></div>
+      <div id="kolListe"></div>
+    </div>
   </div>
 </div>
 
@@ -178,6 +193,7 @@
 <script src="js/menue.js"></script>
 <script src="js/intro.js"></script>
 <script src="js/konzern.js"></script>
+<script src="js/kollektion.js"></script>
 <script src="js/sichern.js"></script>
 <script src="js/main.js"></script>
 </body>

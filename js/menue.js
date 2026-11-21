@@ -231,7 +231,7 @@ $('bauBtn').addEventListener('click', selbst(bauen));
 $('polBtn').addEventListener('click', selbst(polieren));
 $('packBtn').addEventListener('click', selbst(verpacken));
 $('verBtn').addEventListener('click', selbst(verkaufen));
-const fensterZu = () => { for (const id of ['erfolgeFenster', 'einstFenster']) $(id).classList.remove('offen'); };
+const fensterZu = () => { for (const id of ['erfolgeFenster', 'einstFenster', 'kolFenster']) $(id).classList.remove('offen'); };
 document.addEventListener('keydown', e => {
   if (e.repeat || document.body.classList.contains('intro')) return;
   if (e.key === '1') selbst(bauen)();
@@ -255,7 +255,7 @@ $('vollbildBtn').addEventListener('click', async () => {
   }
 });
 // Klick neben ein Fenster schließt es
-for (const id of ['erfolgeFenster', 'einstFenster'])
+for (const id of ['erfolgeFenster', 'einstFenster', 'kolFenster'])
   $(id).addEventListener('click', e => { if (e.target.id === id) $(id).classList.remove('offen'); });
 
 // ===============================================================

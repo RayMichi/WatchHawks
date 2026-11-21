@@ -127,6 +127,8 @@ const CHEATS = [
   { name: '€ ×10', tun: () => { const plus = Math.max(1000, spiel.geld * 9); spiel.geld += plus; spiel.verdient += plus; spiel.rundeVerdient += plus; if (spiel.konzern) spiel.konzern.verdient += plus; } },
   { name: { de: 'Töpfe voll', en: 'Fill pots' }, tun: () => { if (spiel.konzern) spiel.konzern.f.forEach((f, i) => f.topf = kTopfGroesse(i)); } },
   { name: 'Limo', tun: () => { if (spiel.konzern) naechsteLimo = 0; } },
+  { name: { de: '+10 Entwürfe', en: '+10 designs' }, tun: () => { kol().entwuerfe += 10; } },
+  { name: { de: '+100 Teile', en: '+100 parts' }, tun: () => { kol().teile += 100; } },
   { name: '+10 ★', tun: () => { spiel.sterne += 10; spiel.gesamtSterne += 10; } },
   { name: '+50 ★', tun: () => { spiel.sterne += 50; spiel.gesamtSterne += 50; } },
   { name: { de: 'Alle Reiter', en: 'All tabs' }, tun: () => { Object.assign(spiel.tabFrei, { uhren: true, laden: true, ruf: true }); spiel.upg.manager = 1; } },

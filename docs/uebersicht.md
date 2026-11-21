@@ -52,12 +52,39 @@ Alle 5 Filialen stehen in der Stadt (auch wenn man vorher nicht alle erreicht ha
 ### Trends, Werbung, Limousine
 - **Trends:** alle 10 min ein neuer Trend – eine Filiale €×3, eine andere ★×3. Anzeige oben links unter dem Geld (mit Restzeit) und als Abzeichen „€×3“ / „★×3“ am Gebäude.
 - **Werbekampagne** (Knopf unten): Knopf drücken → Filiale antippen → 60 s ×3 Geld, danach 10 min Pause (Werbeagentur verkürzt/verlängert). Orange leuchtender Rahmen + „×3“.
-- **Limousine** (wie der VIP-Kunde): schwarze Stretch-Limo mit Krone fährt auf der mittleren waagrechten Straße vor und hält in der Mitte der Stadt (seit 21.11.; vorher unter der Zentrale, am Handy zu leicht zu übersehen), wartet 12 s, fährt wieder weg. Antippen (oder Kronen-Knopf oben rechts): 40 % Trinkgeld = 2 min Konzern-Einkommen · 30 % 30 s ×5 Geld · 30 % 30 s Turbo (Runden doppelt so schnell). Im Schnitt alle ~90 s, erste nach ~30 s.
+- **Limousine** (wie der VIP-Kunde): schwarze Stretch-Limo mit Krone fährt auf der mittleren waagrechten Straße vor und hält in der Mitte der Stadt (seit 21.11.; vorher unter der Zentrale, am Handy zu leicht zu übersehen), wartet 12 s, fährt wieder weg. Antippen (oder Kronen-Knopf oben rechts): 10 % Uhren-Entwurf · 34 % Trinkgeld = 2 min Konzern-Einkommen · 29 % 30 s ×5 Geld · 27 % 30 s Turbo (Runden doppelt so schnell). Im Schnitt alle ~90 s, erste nach ~30 s.
 - **Offline:** Geld = €/s × Zeit (max. Offline-Zeit wie bisher), Töpfe füllen sich bis zur Obergrenze, Filialleiter sammeln weiter ein.
+
+### Kollektionen (js/kollektion.js, seit 21.11.)
+Gegen das „alles ist ein Multiplikator“-Problem (mit Michi besprochen): Filialen bekommen Charakter über **Uhren-Kollektionen**. Knopf unten **„Kollektion“** (lila, pulsiert und zeigt die Zahl, wenn Entwürfe da sind) öffnet ein Fenster.
+- **10 Kollektionen mit 4–6 Uhren (48 Uhren)**, jede Uhr hat eine Seltenheit: gewöhnlich (grau), selten (blau), episch (lila), legendär (gold, Goldgehäuse). Pixel-Uhren in Kollektionsfarben (Formen rund/eckig/Taschenuhr), fehlende Uhren als dunkle Silhouette.
+- **Uhren kommen aus Entwürfen.** Ein Entwurf ergibt eine zufällige Uhr: erst Seltenheit würfeln (60/27/10/3 %), dann eine zufällige Uhr dieser Seltenheit. **Doppelte → Uhrmacher-Teile** (1/3/8/20 je Seltenheit). Mit Teilen baut man eine fehlende Uhr gezielt (5/15/40/100 Teile, Zahl unter der Uhr, antippen).
+- **Entwürfe gibt es für:** jeden Filial- und Konzern-Meilenstein (je 1) · Limo (10 %, die anderen Belohnungen etwas seltener) · Konzern-Erfolg „Uhrensammler“ (5/15/30/48 Uhren → 2/3/5/10 Entwürfe) · Kaufen gegen Sterne (20 ★ + 5 ★ je Kauf).
+- **Jede Filiale bekommt genau eine Kollektion** (Knöpfe mit den Filialnamen in der Kollektionskarte; jede Kollektion nur in einer Filiale; nochmal tippen = entfernen; Wechsel kostet im Moment nichts). In der Stadt steht an der Filiale ein **Fähnchen** in Kollektionsfarbe mit 3 Punkten für die Stufe.
+- **Set-Bonus in 3 Stufen** nach Anzahl gesammelter Uhren der Kollektion (4 Uhren: 2/3/4 · 5 Uhren: 2/4/5 · 6 Uhren: 2/4/6). Wirkt auf die Filiale, der die Kollektion zugeordnet ist (Gold Royal und Nostalgie Stufe 1 auf den ganzen Konzern):
+
+| Kollektion | Uhren | Stufe 1 | Stufe 2 | Stufe 3 (komplett) |
+|---|---|---|---|---|
+| Hawk Heritage | 4 | Ausbau −15 % | Ausbau −30 % | Meilensteine schon bei 20/40/80 … (×0,8) |
+| Tiefsee | 5 | Sternentopf +1 | Topf +2 | Topf läuft nie über (99, Anzeige „∞“) |
+| Rennstrecke | 5 | Runden 15 % schneller (= +15 % €) | jede 10. Runde doppelt | jede 5. Runde doppelt |
+| Gold Royal | 4 | Limos 25 % häufiger | Limo-Belohnung ×2 | Belohnung ×3, Limos 50 % häufiger |
+| Fliegeruhren | 5 | Trends landen 3× so oft hier | Trends hier halten doppelt | immer eigener €×3-Trend |
+| Bauhaus | 4 | Werbung hier: halbe Pause | Werbung hält doppelt | Werbung hier ohne Pause |
+| Nostalgie | 5 | Offline +1 h | Filiale verdient offline doppelt | Offline-Sterne ohne Topf-Grenze |
+| Perlen & Schmuck | 4 | Nachbarn +10 % € | Nachbarn +25 % € | Nachbarn +50 % € und ★ +25 % |
+| Astronomie | 6 | Sterne +20 % | Sterne +50 % | alle 10 min +1 ★ in jeden Topf |
+| Diamant Edition | 6 | 5 % Glückstreffer (Runde ×5) | 10 % | 10 % mit ×10 |
+
+Nachbarn = Filiale davor und dahinter in der Reihenfolge Hinterhof → Fußgängerzone → Einkaufszentrum → Hauptstraße → Prachtstraße (unabhängig von Hoch-/Querformat).
+- **Komplette Kollektion = Launch:** Meldung, ganzer Konzern dauerhaft **+25 % €** je Launch (zählt auch, wenn die Kollektion keiner Filiale zugeordnet ist).
+- **Sammlung bleibt** (`spiel.kollektion` liegt außerhalb von `spiel.konzern`) → überlebt den späteren Konzern-Reset.
+- **Tempo** (Simulation, kluges Bauen mit Teilen): 10 Uhren nach ~11 Entwürfen, 24 nach ~39, **erste komplette Kollektion nach ~50 Entwürfen** (34–82), 3 nach ~100, alle 10 nach ~300 (250–360). Bei geschätzt 8–10 Entwürfen pro Stunde: erste Kollektion nach ~5–6 h, alle nach ~30–35 h.
+- Zahlen in `SELTEN` und `KOL` oben in kollektion.js. Dev-Schummelknöpfe: „+10 Entwürfe“, „+100 Teile“.
 
 ### Konzern-Erfolge (eigener Reiter im Erfolge-Fenster)
 Nach der Gründung hat das Erfolge-Fenster zwei Reiter **Laden** / **Konzern** (mit eigenem roten Zähler). Konzern-Erfolge geben **Sterne**:
-Konzernumsatz (100 Mio. → 5 ★ … 1 Bio. → 40 ★) · Bauherr (Summe Stufen 50/100/250/500) · Chauffeur (Limos 1/10/50/200) · Gute Leitung (Filialleiter 1/3/5) · Sternensammler (10/50/200/1.000 ★) · Werbeprofi (Kampagnen 1/10/50) · Spezialist (Spezialisierungen 1/5/15).
+Konzernumsatz (100 Mio. → 5 ★ … 1 Bio. → 40 ★) · Bauherr (Summe Stufen 50/100/250/500) · Chauffeur (Limos 1/10/50/200) · Gute Leitung (Filialleiter 1/3/5) · Sternensammler (10/50/200/1.000 ★) · Werbeprofi (Kampagnen 1/10/50) · Spezialist (Spezialisierungen 1/5/15) · Uhrensammler (Uhren 5/15/30/48 → 2/3/5/10 Entwürfe statt Sterne).
 
 ### Balancing (Bot, Start 5 Mio. €, 30 ★)
 Erste Fassung (alle gleich teuer, Faktor 1,15, Meilensteine ab 10, Umsatz ×2): alle auf Stufe 75 nach 12 min, danach Wand. Zweite Fassung (alle gleich, Faktor 1,10): man levelt automatisch alles gleichmäßig → verworfen.

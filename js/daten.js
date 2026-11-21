@@ -90,9 +90,10 @@ const BELOHNUNG_TEXT = {
   geld:   w => t('bel.geld', { x: zahl(w) }),
   vip:    w => t('bel.vip', { w }),
   offline: w => t('bel.offline', { w }),
-  stern:  w => t('bel.stern', { w })
+  stern:  w => t('bel.stern', { w }),
+  entwurf: w => t('bel.entwurf', { w })
 };
-const BELOHNUNG_ICON = { preis: 'verkauf', bau: 'bau', polier: 'polier', pack: 'pack', team: 'manager', geld: 'verkauf', vip: 'vip', offline: 'stern', stern: 'stern' };
+const BELOHNUNG_ICON = { preis: 'verkauf', bau: 'bau', polier: 'polier', pack: 'pack', team: 'manager', geld: 'verkauf', vip: 'vip', offline: 'stern', stern: 'stern', entwurf: 'uhren' };
 
 const anzahlTeam = () => Object.values(spiel.team).filter(x => x > 0).length;
 
@@ -149,6 +150,8 @@ const K_ERFOLGE = [
     stufen: [{ ziel: 1, art: 'stern', wert: 2 }, { ziel: 10, art: 'stern', wert: 5 }, { ziel: 50, art: 'stern', wert: 10 }] },
   { id: 'k_spezial', name: 'Spezialist', wert: () => kz().f.reduce((s, f) => s + f.spez.length, 0),
     stufen: [{ ziel: 1, art: 'stern', wert: 3 }, { ziel: 5, art: 'stern', wert: 5 }, { ziel: 15, art: 'stern', wert: 10 }] },
+  { id: 'k_kollektion', name: 'Uhrensammler', wert: () => kolUhrenGesamt(),
+    stufen: [{ ziel: 5, art: 'entwurf', wert: 2 }, { ziel: 15, art: 'entwurf', wert: 3 }, { ziel: 30, art: 'entwurf', wert: 5 }, { ziel: 48, art: 'entwurf', wert: 10 }] },
 ];
 for (const e of K_ERFOLGE) e.text = z => t('et.' + e.id, { z, x: zahl(z) });
 const alleErfolge = () => spiel.konzern ? ERFOLGE.concat(K_ERFOLGE) : ERFOLGE;

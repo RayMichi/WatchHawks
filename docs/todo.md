@@ -82,10 +82,14 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [x] Konzern-Sterne Variante V2: große Filialen bringen mehr Sterne (60/40/25/15/10 min bei Stufe 1), jede Stufe +3 % – Bot: ~53 ★ nach 1 h, ~417 nach 3 h
 - [x] Konzern: Sternanzeige an jeder Filiale als Box „3/6 ★“ (im Topf / Platz), darunter füllt sich ein Balken bis zum nächsten Stern (voll = gold, pulsiert); Ring und umlaufende Linie vorher verworfen
 - [x] Konzern: Limo hält jetzt in der Mitte der Stadt statt unten an der Zentrale (am Handy besser sichtbar)
+- [x] **Konzern: Kollektionen** – Knopf „Kollektion“, 10 Kollektionen / 48 Uhren mit Seltenheit, Entwürfe (Meilensteine, Limo, Erfolg, Sterne), Teile aus Doppelten zum gezielten Bauen, je Filiale eine Kollektion mit 3-stufigem Set-Bonus (verändert, wie die Filiale funktioniert), Launch +25 % €, Fähnchen an der Filiale
 - [x] Meldungen oben unter der Geld-Anzeige statt unten (verdecken am Handy nicht mehr den VIP bei offenem Upgrade-Menü)
 - [x] Spiel heißt jetzt **WatchHawks**; Versionsverwaltung auf GitHub (RayMichi/WatchHawks), Claude lädt jede Änderung hoch, spielbar über GitHub Pages (läuft, von Michi am Handy getestet)
 
 ## Als Nächstes
+- [ ] **Michi testet die Kollektionen** (`?dev`, Vorlage „Konzern läuft“, Schummeln „+10 Entwürfe“/„+100 Teile“): Boni spürbar und unterschiedlich genug? Sammeltempo ok? Wechsel kostenlos lassen?
+- [ ] **Konzern Problem 2 – nichts, worauf man reagieren muss:** Aktienkurs + Nachrichten-Ticker (4. Knopf „Aktie“) – Vorschläge stehen, Michi entscheidet
+- [ ] **Konzern Problem 3 – Stadt verändert sich kaum:** Gebäude wachsen mit Meilensteinen, mehr Passanten/Autos bei mehr Umsatz (Fähnchen der Kollektionen sind ein erster Schritt)
 - [ ] **Michi testet den Konzern** (Vorlage „Konzern läuft“ mit `?dev`): Tempo ok? Sterne zu langsam/schnell (falls zu viele: Turbo/Zentrale teurer statt weniger Sterne)? Spezialisierungen spürbar? Limo-Belohnung?
 - [ ] **Konzern-Reset mit Gems:** ganz von vorne (Hinterhof), neuer Knopf neben „Upgrades“ mit Gem-Netz (erster Punkt z. B. +500 % Grundverdienst), Gems nach verdientem Geld? – Werte testen
 - [ ] Lieferkette (Filialen helfen sich gegenseitig) – zurückgestellt

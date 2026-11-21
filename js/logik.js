@@ -176,6 +176,7 @@ function erfolgEinsammeln(id) {
   spiel.erfolgStufe[id] = k + 1;
   if (st.art === 'geld') spiel.geld += st.wert;
   if (st.art === 'stern') { spiel.sterne += st.wert; spiel.gesamtSterne += st.wert; }
+  if (st.art === 'entwurf') kolEntwurfGeben(st.wert);
   meldung(t('m.eingesammelt', { b: BELOHNUNG_TEXT[st.art](st.wert) }));
 }
 
