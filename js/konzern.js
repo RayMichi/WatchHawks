@@ -602,10 +602,9 @@ function konzernOverlay(M) {
       text('×3', tx + tw / 2, y, 3, '#ffffff', null);
     }
     // Sternentopf / Filialleiter / Spezialisierung offen
-    const bx = x + h.w - 4, byy = y - 6;
-    if (kSpezOffen(i)) kBlase(bx - 12, byy, '!', '#ffd77a', '#8a2a2a', true);
-    if (f.leiter) { r(bx + 1 - P, y + h.h - 7 - P, 6 + 2 * P, 6 + 2 * P, F_BASIS.umriss); r(bx + 1, y + h.h - 7, 6, 6, '#3a6ac0'); text('L', bx + 4, y + h.h - 4, 3.2, '#ffffff', null); }
-    else if (f.topf >= 1) kBlase(bx, byy, '★' + Math.floor(f.topf), '#cfe8ff', '#1a3a7a', f.topf >= kTopfGroesse(i));
+    const sx = x + h.w - 4, sy = y + 4;
+    if (kSpezOffen(i)) kBlase(sx - 17, y - 6, '!', '#ffd77a', '#8a2a2a', true);
+    sternAnzeige(sx, sy, f, i);
   });
   // Limousine: fährt auf der Straße unter der Zentrale vor, wartet, fährt weiter
   kAbb && (kAbb.limoNeu = null);
@@ -708,3 +707,59 @@ function konzernHud() {
 }
 $('kSternBtn').addEventListener('click', () => kSterneEinsammeln());
 $('kWerbBtn').addEventListener('click', () => kKampagneStarten());
+
+// Sternentopf an der Filiale: Stern mit Anzahl im Topf, Ring füllt sich bis zum nächsten Stern
+const STERN_FORM = (() => {   // 5-zackiger Stern, Radius 1
+  const p = [];
+  for (let k = 0; k < 10; k++) { const w = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? 0.45 : 1; p.push([Math.cos(w) * rr, Math.sin(w) * rr]); }
+  return p;
+})();
+function imStern(px, py) {
+  let drin = false;
+  for (let a = 0, b = STERN_FORM.length - 1; a < STERN_FORM.length; b = a++) {
+    const [xa, ya] = STERN_FORM[a], [xb, yb] = STERN_FORM[b];
+    if ((ya > py) !== (yb > py) && px < (xb - xa) * (py - ya) / (yb - ya) + xa) drin = !drin;
+  }
+  return drin;
+}
+function pixelStern(cx, cy, R, farbe) {
+  const st = P;   // feine Pixel
+  for (let yy = -R - st; yy <= R + st; yy += st) {
+    let start = null;
+    for (let xx = -R - st; xx <= R + st + st; xx += st) {
+      const d = xx <= R + st && imStern(xx / R, (yy + st / 2) / R);
+      if (d && start === null) start = xx;
+      if (!d && start !== null) { r(cx + start, cy + yy, xx - start, st, farbe); start = null; }
+    }
+  }
+}
+function sternAnzeige(cx, cy, f, i) {
+  const voll = f.topf >= kTopfGroesse(i), anzahl = Math.floor(f.topf), anteil = voll ? 1 : f.topf - anzahl;
+  const RR = 8, puls = voll && !f.leiter ? 0.6 + 0.4 * Math.sin(zeit * 6) : 1;
+  // Hintergrundscheibe
+  for (let yy = -RR - 1; yy <= RR + 1; yy += P) {
+    const w = Math.sqrt(Math.max(0, (RR + 1) * (RR + 1) - yy * yy));
+    r(cx - w, cy + yy, 2 * w, P, F_BASIS.umriss);
+  }
+  for (let yy = -RR + 0.5; yy <= RR - 0.5; yy += P) {
+    const w = Math.sqrt(Math.max(0, (RR - 0.5) * (RR - 0.5) - yy * yy));
+    r(cx - w, cy + yy, 2 * w, P, '#2a3550');
+  }
+  // Ring: von oben im Uhrzeigersinn
+  const n = 64;
+  for (let k = 0; k < n; k++) {
+    const w = -Math.PI / 2 + (k + 0.5) / n * Math.PI * 2;
+    const an = k / n < anteil;
+    const farbe = an ? (voll ? `rgba(255,215,122,${puls})` : '#7fc8ff') : '#46506a';
+    r(cx + Math.cos(w) * (RR - 1.2) - 0.9, cy + Math.sin(w) * (RR - 1.2) - 0.9, 1.8, 1.8, farbe);
+  }
+  // Stern mit Zahl
+  pixelStern(cx, cy + 0.3, 5.6, F_BASIS.umriss);
+  pixelStern(cx, cy + 0.3, 4.8, anzahl > 0 ? (voll ? '#ffd77a' : '#9ad8ff') : '#7890b0');
+  text(String(anzahl), cx, cy + 1, 4.4, '#ffffff', '#10203a');
+  // Filialleiter sammelt automatisch: kleines „L“ unten links
+  if (f.leiter) {
+    r(cx - RR - 1 - P, cy + 2.5 - P, 5 + 2 * P, 5 + 2 * P, F_BASIS.umriss); r(cx - RR - 1, cy + 2.5, 5, 5, '#3a6ac0');
+    text('L', cx - RR + 1.5, cy + 5, 3, '#ffffff', null);
+  }
+}
