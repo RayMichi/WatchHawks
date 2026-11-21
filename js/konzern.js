@@ -735,28 +735,34 @@ function pixelStern(cx, cy, R, farbe) {
 }
 function sternAnzeige(cx, cy, f, i) {
   const voll = f.topf >= kTopfGroesse(i), anzahl = Math.floor(f.topf), anteil = voll ? 1 : f.topf - anzahl;
-  const RR = 8, puls = voll && !f.leiter ? 0.6 + 0.4 * Math.sin(zeit * 6) : 1;
-  // Hintergrundscheibe
-  for (let yy = -RR - 1; yy <= RR + 1; yy += P) {
-    const w = Math.sqrt(Math.max(0, (RR + 1) * (RR + 1) - yy * yy));
-    r(cx - w, cy + yy, 2 * w, P, F_BASIS.umriss);
-  }
-  for (let yy = -RR + 0.5; yy <= RR - 0.5; yy += P) {
-    const w = Math.sqrt(Math.max(0, (RR - 0.5) * (RR - 0.5) - yy * yy));
-    r(cx - w, cy + yy, 2 * w, P, '#2a3550');
-  }
-  // Ring: von oben im Uhrzeigersinn
-  const n = 64;
-  for (let k = 0; k < n; k++) {
-    const w = -Math.PI / 2 + (k + 0.5) / n * Math.PI * 2;
-    const an = k / n < anteil;
-    const farbe = an ? (voll ? `rgba(255,215,122,${puls})` : '#7fc8ff') : '#46506a';
-    r(cx + Math.cos(w) * (RR - 1.2) - 0.9, cy + Math.sin(w) * (RR - 1.2) - 0.9, 1.8, 1.8, farbe);
+  const RR = 7, puls = voll && !f.leiter ? 0.55 + 0.45 * Math.sin(zeit * 6) : 1;
+  // Kasten: Umriss, dunkle Fläche
+  r(cx - RR - 1, cy - RR - 1, 2 * RR + 2, 2 * RR + 2, F_BASIS.umriss);
+  r(cx - RR, cy - RR, 2 * RR, 2 * RR, '#2a3550');
+  // Fortschrittslinie (1 Pixel) läuft im Uhrzeigersinn um den Kasten, Start oben in der Mitte
+  const seite = 2 * RR, L = 4 * seite, voran = anteil * L;
+  const farbe = voll ? `rgba(255,215,122,${puls})` : '#7fc8ff', grund = '#46506a';
+  const strecken = [   // [x, y, dx, dy, Länge]
+    [cx, cy - RR, 1, 0, RR], [cx + RR, cy - RR, 0, 1, seite], [cx + RR, cy + RR, -1, 0, seite],
+    [cx - RR, cy + RR, 0, -1, seite], [cx - RR, cy - RR, 1, 0, RR],
+  ];
+  let weg = 0;
+  for (const [x0, y0, dx, dy, len] of strecken) {
+    const an = Math.max(0, Math.min(len, voran - weg));
+    const zeichne = (von, bis, c) => {
+      if (bis <= von) return;
+      const xa = x0 + dx * von, ya = y0 + dy * von, xb = x0 + dx * bis, yb = y0 + dy * bis;
+      const lx = Math.min(xa, xb) - (dx ? 0 : 0.5), ly = Math.min(ya, yb) - (dy ? 0 : 0.5);
+      r(lx, ly, Math.abs(xb - xa) || 1, Math.abs(yb - ya) || 1, c);
+    };
+    zeichne(0, len, grund);
+    zeichne(0, an, farbe);
+    weg += len;
   }
   // Stern mit Zahl
-  pixelStern(cx, cy + 0.3, 5.6, F_BASIS.umriss);
-  pixelStern(cx, cy + 0.3, 4.8, anzahl > 0 ? (voll ? '#ffd77a' : '#9ad8ff') : '#7890b0');
-  text(String(anzahl), cx, cy + 1, 4.4, '#ffffff', '#10203a');
+  pixelStern(cx, cy + 0.3, 5.2, F_BASIS.umriss);
+  pixelStern(cx, cy + 0.3, 4.4, anzahl > 0 ? (voll ? '#ffd77a' : '#9ad8ff') : '#7890b0');
+  text(String(anzahl), cx, cy + 1, 4.4, anzahl > 0 ? '#10203a' : '#ffffff', anzahl > 0 ? null : '#10203a');
   // Filialleiter sammelt automatisch: kleines „L“ unten links
   if (f.leiter) {
     r(cx - RR - 1 - P, cy + 2.5 - P, 5 + 2 * P, 5 + 2 * P, F_BASIS.umriss); r(cx - RR - 1, cy + 2.5, 5, 5, '#3a6ac0');

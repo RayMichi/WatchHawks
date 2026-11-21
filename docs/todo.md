@@ -80,7 +80,7 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [x] **Konzern-Gameplay (Test-Fassung):** Gründung behält € und ★, Stadt ist das Spiel; 5 Filialen laufen automatisch in Runden (klein oft/groß selten, gleich viel pro Sekunde), Ausbau mit € (×1/×10/Max), Meilensteine, Spezialisierung (Umsatz/Prestige/Tempo), Sternentöpfe + Knopf „Sterne“, Sterne-Upgrades (Filialleiter, Tresor, Turbo), Zentrale (Marketing, Presse, Fuhrpark, Werbeagentur), Trends alle 10 min, Werbekampagne, Limousine mit Krone, Offline, Konzern-Erfolge als eigener Reiter
 - [x] Konzern: jede Filiale mit eigenen Ausbaupreisen, eigenem Preiswachstum und eigenem Verdienst (100 Tsd./×1,07 … 25 Mio./×1,15), Konzern-Meilensteine ab „alle auf 25“
 - [x] Konzern-Sterne Variante V2: große Filialen bringen mehr Sterne (60/40/25/15/10 min bei Stufe 1), jede Stufe +3 % – Bot: ~53 ★ nach 1 h, ~417 nach 3 h
-- [x] Konzern: Stern mit Anzahl im Topf + Fortschrittsring bis zum nächsten Stern an jeder Filiale (voll = gold, pulsiert)
+- [x] Konzern: Kasten mit Stern + Anzahl im Topf an jeder Filiale, 1-Pixel-Linie läuft bis zum nächsten Stern um den Kasten (voll = gold, pulsiert)
 - [x] Meldungen oben unter der Geld-Anzeige statt unten (verdecken am Handy nicht mehr den VIP bei offenem Upgrade-Menü)
 - [x] Spiel heißt jetzt **WatchHawks**; Versionsverwaltung auf GitHub (RayMichi/WatchHawks), Claude lädt jede Änderung hoch, spielbar über GitHub Pages (läuft, von Michi am Handy getestet)
 
