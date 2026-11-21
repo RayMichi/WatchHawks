@@ -81,6 +81,7 @@ Details zu Variablen & Formeln: siehe `uebersicht.md`.
 - [x] Konzern: jede Filiale mit eigenen Ausbaupreisen, eigenem Preiswachstum und eigenem Verdienst (100 Tsd./×1,07 … 25 Mio./×1,15), Konzern-Meilensteine ab „alle auf 25“
 - [x] Konzern-Sterne Variante V2: große Filialen bringen mehr Sterne (60/40/25/15/10 min bei Stufe 1), jede Stufe +3 % – Bot: ~53 ★ nach 1 h, ~417 nach 3 h
 - [x] Konzern: Sternanzeige an jeder Filiale als Box „3/6 ★“ (im Topf / Platz), darunter füllt sich ein Balken bis zum nächsten Stern (voll = gold, pulsiert); Ring und umlaufende Linie vorher verworfen
+- [x] Konzern: Limo hält jetzt in der Mitte der Stadt statt unten an der Zentrale (am Handy besser sichtbar)
 - [x] Meldungen oben unter der Geld-Anzeige statt unten (verdecken am Handy nicht mehr den VIP bei offenem Upgrade-Menü)
 - [x] Spiel heißt jetzt **WatchHawks**; Versionsverwaltung auf GitHub (RayMichi/WatchHawks), Claude lädt jede Änderung hoch, spielbar über GitHub Pages (läuft, von Michi am Handy getestet)
 

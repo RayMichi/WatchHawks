@@ -52,7 +52,7 @@ Alle 5 Filialen stehen in der Stadt (auch wenn man vorher nicht alle erreicht ha
 ### Trends, Werbung, Limousine
 - **Trends:** alle 10 min ein neuer Trend – eine Filiale €×3, eine andere ★×3. Anzeige oben links unter dem Geld (mit Restzeit) und als Abzeichen „€×3“ / „★×3“ am Gebäude.
 - **Werbekampagne** (Knopf unten): Knopf drücken → Filiale antippen → 60 s ×3 Geld, danach 10 min Pause (Werbeagentur verkürzt/verlängert). Orange leuchtender Rahmen + „×3“.
-- **Limousine** (wie der VIP-Kunde): schwarze Stretch-Limo mit Krone fährt auf der Straße unter der Zentrale vor, wartet 12 s, fährt wieder weg. Antippen (oder Kronen-Knopf oben rechts): 40 % Trinkgeld = 2 min Konzern-Einkommen · 30 % 30 s ×5 Geld · 30 % 30 s Turbo (Runden doppelt so schnell). Im Schnitt alle ~90 s, erste nach ~30 s.
+- **Limousine** (wie der VIP-Kunde): schwarze Stretch-Limo mit Krone fährt auf der mittleren waagrechten Straße vor und hält in der Mitte der Stadt (seit 21.11.; vorher unter der Zentrale, am Handy zu leicht zu übersehen), wartet 12 s, fährt wieder weg. Antippen (oder Kronen-Knopf oben rechts): 40 % Trinkgeld = 2 min Konzern-Einkommen · 30 % 30 s ×5 Geld · 30 % 30 s Turbo (Runden doppelt so schnell). Im Schnitt alle ~90 s, erste nach ~30 s.
 - **Offline:** Geld = €/s × Zeit (max. Offline-Zeit wie bisher), Töpfe füllen sich bis zur Obergrenze, Filialleiter sammeln weiter ein.
 
 ### Konzern-Erfolge (eigener Reiter im Erfolge-Fenster)

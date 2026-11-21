@@ -606,11 +606,13 @@ function konzernOverlay(M) {
     if (kSpezOffen(i)) kBlase(sx - 17, y - 6, '!', '#ffd77a', '#8a2a2a', true);
     sternAnzeige(sx, sy, f, i);
   });
-  // Limousine: fährt auf der Straße unter der Zentrale vor, wartet, fährt weiter
+  // Limousine: fährt auf der mittleren Straße vor, hält in der Mitte der Stadt, wartet, fährt weiter
   kAbb && (kAbb.limoNeu = null);
   if (limo) {
-    const z = blockPos(5, M), ly = z.y + BLOCK_H + STRASSE / 2 - 2.5, lw = 24, lh = 6;
-    const stopp = z.x + BLOCK_W / 2 - lw / 2;
+    // hält in der Mitte der Stadt: mittlere waagrechte Straße (bei 3 Reihen die obere der beiden inneren), mittig
+    const lw = 24, lh = 6, jMitte = Math.max(1, Math.floor(M.ze / 2));
+    const ly = jMitte * (BLOCK_H + STRASSE) + STRASSE / 2 - lh / 2;
+    const stopp = M.W / 2 - lw / 2;
     const e = limo.x <= 1 ? 1 - Math.pow(1 - limo.x, 2) : (limo.x - 1) * (limo.x - 1);
     const lx = limo.x <= 1 ? -30 + (stopp + 30) * e : stopp + (M.W + 40 - stopp) * e;
     stretchLimo(lx, ly, lw, lh, limo.phase === 'wartet');
